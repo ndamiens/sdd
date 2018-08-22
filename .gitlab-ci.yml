@@ -1,7 +1,20 @@
+stages:
+  - tests
+  - deploy
+
 tests:
   image: ndamiens/nginx-php 
-  stage: test
+  stage: tests
   script:
     - composer install -q
     - vendor/bin/phpunit
 
+packagist:
+  only:
+    - tags
+    - master
+  image: alpine
+  stage: deploy
+  script:
+    - apk add curl
+    - curl -XPOST -H'content-type:application/json' 'https://packagist.org/api/update-package?username=ndamiens&apiToken=$PACKAGIST_TOKEN' -d'{"repository":{"url":"https://packagist.org/packages/ndamiens/congressus-sepa-direct-debit"}}'
