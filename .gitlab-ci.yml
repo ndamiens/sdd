@@ -17,4 +17,4 @@ packagist:
   stage: deploy
   script:
     - apk add curl
-    - curl -XPOST -H'content-type:application/json' "https://packagist.org/api/update-package?username=ndamiens&apiToken=$PACKAGIST_TOKEN" -d'{"repository":{"url":"https://packagist.org/packages/ndamiens/congressus-sepa-direct-debit"}}'
+    - curl -XPOST -H'content-type:application/json' "https://packagist.org/api/update-package?username=ndamiens&apiToken=$PACKAGIST_TOKEN" -d'{"repository":{"url":"https://gitlab.damiens.info/nicolas/congressus-sepa-direct-debit"}}'
