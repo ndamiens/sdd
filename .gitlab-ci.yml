@@ -2,6 +2,6 @@ tests:
   image: ndamiens/nginx-php 
   stage: test
   script:
-    - composer install -o -q
+    - composer install -q
     - vendor/bin/phpunit
 

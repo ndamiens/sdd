@@ -588,7 +588,7 @@ class SEPASDD {
 	}
 	$result = preg_match("/[A-Z]{2,2}[0-9]{2,2}[a-zA-Z0-9]{1,30}/", $IBAN);
 	if ($result == 0 || $result === False) {
-	    return False;
+	    throw new SEPAInvalidIBAN();
 	}
 
 	$indexArray = array_flip(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C',
@@ -629,7 +629,7 @@ class SEPASDD {
 	if ($endmod == 1) {
 	    return True;
 	} else {
-	    return False;
+	    throw new SEPAInvalidIBAN();
 	}
     }
 
@@ -667,7 +667,7 @@ class SEPASDD {
 	if ($result > 0 && $result !== false) {
 	    return true;
 	} else {
-	    return false;
+	    throw new SEPAInvalidBIC();
 	}
     }
 
