@@ -1,5 +1,5 @@
 tests:
-  image: gitlab.k-net.fr:1234/docker/kdo-php7:master
+  image: ndamiens/nginx-php 
   stage: test
   script:
     - composer install -o -q
