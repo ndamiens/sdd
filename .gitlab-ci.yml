@@ -1,0 +1,7 @@
+tests:
+  image: gitlab.k-net.fr:1234/docker/kdo-php7:master
+  stage: test
+  script:
+    - composer install -o -q
+    - vendor/bin/phpunit
+

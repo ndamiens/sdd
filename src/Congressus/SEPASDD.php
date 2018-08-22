@@ -1,4 +1,5 @@
 <?php
+namespace Congressus;
 
 /*
   Copyright (c) 2016 Congressus, The Netherlands
@@ -41,7 +42,7 @@ class SEPASDD {
 	$config_validator = $this->validateConfig($config);
 
 	if ($config_validator !== true) {
-	    throw new Exception("Invalid config file: " . $config_validator);
+	    throw new \Exception("Invalid config file: " . $config_validator);
 	}
 
 	//Prepare the document
@@ -56,7 +57,7 @@ class SEPASDD {
      */
     private function prepareDocument() {
 	//Create the XML Instance
-	$this->xml = new DOMDocument("1.0", "UTF-8");
+	$this->xml = new \DOMDocument("1.0", "UTF-8");
 
 	//Set formatting options
 	$this->xml->preserveWhiteSpace = false;
@@ -141,7 +142,7 @@ class SEPASDD {
 	//First validate the payment array
 	$validationResult = $this->validatePayment($payment);
 	if ($validationResult !== true) {
-	    throw new Exception("Invalid Payment, error with: " . $validationResult);
+	    throw new \Exception("Invalid Payment, error with: " . $validationResult);
 	}
 
 	//Get the CstmrDrctDbtInitnNode 
@@ -395,7 +396,7 @@ class SEPASDD {
      * @param $xml The xml, as a string, to validate agianst the schema.
      */
     public function validate($xml) {
-	$domdoc = new DOMDocument();
+	$domdoc = new \DOMDocument();
 	$domdoc->loadXML($xml);
 	if (isset($this->config['version']) && $this->config['version'] == "3") {
 	    return $domdoc->schemaValidate("pain.008.001.03.xsd");
@@ -414,10 +415,10 @@ class SEPASDD {
      * @param $attr Key => Value array defining the attributes (Optional, default none)
      */
     public function addCustomNode($parent_XPATH, $name, $value = "", $attr = array()) {
-	$xpath = new DOMXPath($this->xml);
+	$xpath = new \DOMXPath($this->xml);
 	$parent = $xpath->query($parent_XPATH);
 	if ($parent == false || $parent->length == 0) {
-	    throw new Exception("Invalid XPATH expression, or no results found: " . $parent_XPATH);
+	    throw new \Exception("Invalid XPATH expression, or no results found: " . $parent_XPATH);
 	}
 	$newnode = $this->xml->createElement($name);
 	if ($value != "") {
@@ -454,7 +455,7 @@ class SEPASDD {
 	    $trxAmountArray[] = $amount->nodeValue;
 	}
 	$trxAmount = $this->calcTotalAmount($trxAmountArray);
-	$xpath = new DOMXPath($this->xml);
+	$xpath = new \DOMXPath($this->xml);
 	$NbOfTxs_XPATH = "//Document/CstmrDrctDbtInitn/GrpHdr/NbOfTxs";
 	$CtrlSum_XPATH = "//Document/CstmrDrctDbtInitn/GrpHdr/CtrlSum";
 	$NbOfTxsNode = $xpath->query($NbOfTxs_XPATH)->item(0);
@@ -832,7 +833,7 @@ class SEPASDD {
     private function getCstmrDrctDbtInitnNode() {
 	$CstmrDrctDbtInitnNodeList = $this->xml->getElementsByTagName("CstmrDrctDbtInitn");
 	if ($CstmrDrctDbtInitnNodeList->length != 1) {
-	    throw new Exception("Error retrieving node from document: No or Multiple CstmrDrctDbtInitn");
+	    throw new \Exception("Error retrieving node from document: No or Multiple CstmrDrctDbtInitn");
 	}
 	return $CstmrDrctDbtInitnNodeList->item(0);
     }
@@ -1043,5 +1044,3 @@ class SEPASDD {
     }
 
 }
-
-?>

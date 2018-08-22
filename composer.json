@@ -1,5 +1,5 @@
 {
-  "name": "congressus/sepa-direct-debit",
+  "name": "ndamiens/congressus-sepa-direct-debit",
   "description": "Package to create SEPA Direct Debit XML (B2C, Business to Consumer only) files conform pain.008.001.02 or pain.008.001.03.",
   "keywords": [
     "php",
@@ -13,6 +13,11 @@
     "php": ">=5.2"
   },
   "autoload": {
-    "classmap": ["/"]
+    "psr-4": {
+       "Congressus\\": "./src"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.5"
   }
 }
