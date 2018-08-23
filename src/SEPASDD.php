@@ -393,15 +393,15 @@ class SEPASDD {
 
     /**
      * Function to validate xml against the pain.008.001.02 schema definition.
-     * @param $xml The xml, as a string, to validate agianst the schema.
+     * @param $xml The xml, as a string, to validate against the schema.
      */
     public function validate($xml) {
 	$domdoc = new \DOMDocument();
 	$domdoc->loadXML($xml);
 	if (isset($this->config['version']) && $this->config['version'] == "3") {
-	    return $domdoc->schemaValidate("pain.008.001.03.xsd");
+	    return $domdoc->schemaValidate(__DIR__."/pain.008.001.03.xsd");
 	} else {
-	    return $domdoc->schemaValidate("pain.008.001.02.xsd");
+	    return $domdoc->schemaValidate(__DIR__."/pain.008.001.02.xsd");
 	}
     }
 
@@ -679,7 +679,7 @@ class SEPASDD {
      * @return True if valid, error string if invalid.
      */
     public static function validateDate($date) {
-	$result = DateTime::createFromFormat("Y-m-d", $date);
+	$result = \DateTime::createFromFormat("Y-m-d", $date);
 
 	if ($result === false) {
 	    return $date . " is not a valid ISO Date";
@@ -696,7 +696,7 @@ class SEPASDD {
      * @return True if valid, error string if invalid.
      */
     public static function validateMandateDate($date) {
-	$result = DateTime::createFromFormat("Y-m-d", $date);
+	$result = \DateTime::createFromFormat("Y-m-d", $date);
 
 	if ($result === false) {
 	    return $date . " is not a valid ISO Date";
@@ -724,11 +724,10 @@ class SEPASDD {
 	    "RCUR",
 	    "FNAL",
 	    "OOFF");
-	if (in_array($type, $types)) {
-	    return true;
-	} else {
-	    return $type . " is not a valid Sepa Direct Debit Transaction Type.";
+	if (!in_array($type, $types)) {
+	    throw new SEPAInvalidFormat($type . " is not a valid Sepa Direct Debit Transaction Type.");
 	}
+	return true;
     }
 
 //validateDDType
@@ -1002,7 +1001,7 @@ class SEPASDD {
 		$date = $batchKey[1];
 		$batchInfo['CollectionDate'] = $date;
 
-		$dateObject = DateTime::createFromFormat("Y-m-d", $date);
+		$dateObject = \DateTime::createFromFormat("Y-m-d", $date);
 		if ($info['FirstCollectionDate'] == NULL || $dateObject > $info['FirstCollectionDate']) {
 		    $info['FirstCollectionDate'] = $dateObject;
 		}
@@ -1032,7 +1031,7 @@ class SEPASDD {
 	    $dates = $this->xml->getElementsByTagName("ReqdColltnDt");
 	    $datesCount = $dates->length;
 	    for ($idx = 0; $idx < $datesCount; $idx++) {
-		$dateObject = DateTime::createFromFormat("Y-m-d", $dates->item($idx)->nodeValue);
+		$dateObject = \DateTime::createFromFormat("Y-m-d", $dates->item($idx)->nodeValue);
 		if ($info['FirstCollectionDate'] == NULL || $dateObject > $info['FirstCollectionDate']) {
 		    $info['FirstCollectionDate'] = $dateObject;
 		}
