@@ -682,7 +682,11 @@ class SEPASDD {
 	$result = \DateTime::createFromFormat("Y-m-d", $date);
 
 	if ($result === false) {
-	    return $date . " is not a valid ISO Date";
+	    throw new SEPAInvalidDate($date . " is not a valid ISO Date");
+	}
+
+	if ($result->format("Y-m-d") != $date) {
+	    throw new SEPAInvalidDate($date . " is not a valid ISO Date");
 	}
 
 	return true;
@@ -696,6 +700,7 @@ class SEPASDD {
      * @return True if valid, error string if invalid.
      */
     public static function validateMandateDate($date) {
+	self::validateDate($date);
 	$result = \DateTime::createFromFormat("Y-m-d", $date);
 
 	if ($result === false) {

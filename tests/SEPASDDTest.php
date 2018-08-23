@@ -76,7 +76,7 @@ class SEPASDDTest extends \PHPUnit\Framework\TestCase {
     /**
      * @depends testCreateInstance
      */
-    public function testInvalidPaymentType($sdd) {
+    public function testInvalidPaymentType(SEPASDD $sdd) {
 	$this->expectException(SEPAInvalidFormat::class);
 	$payment = [
 	    "name" => "Test von Testenstein",
@@ -86,7 +86,7 @@ class SEPASDDTest extends \PHPUnit\Framework\TestCase {
 	    "type" => "PLOP",
 	    "collection_date" => date("Y-m-d"),
 	    "mandate_id" => "1234",
-	    "mandate_date" => date("2014-02-01"),
+	    "mandate_date" => "2014-02-01",
 	    "description" => "Test transaction"
 	];
 	$sdd->addPayment($payment);
@@ -95,7 +95,15 @@ class SEPASDDTest extends \PHPUnit\Framework\TestCase {
     /**
      * @depends testCreateInstance
      */
-    public function testInvalidDate($sdd) {
+    public function testInvalidDateTest(SEPASDD $sdd) {
+	$this->expectException(SEPAInvalidFormat::class);
+	$sdd->validateDate("2014-13-22");
+	$this->assertTrue($sdd->validateDate("2012-02-12"));
+    }
+    /**
+     * @depends testCreateInstance
+     */
+    public function testInvalidDate(SEPASDD $sdd) {
 	$this->expectException(SEPAInvalidFormat::class);
 	$payment = [
 	    "name" => "Test von Testenstein",
@@ -105,7 +113,7 @@ class SEPASDDTest extends \PHPUnit\Framework\TestCase {
 	    "type" => "FRST",
 	    "collection_date" => date("Y-m-d"),
 	    "mandate_id" => "1234",
-	    "mandate_date" => date("2014-02-31"),
+	    "mandate_date" => "2014-02-31",
 	    "description" => "Test transaction"
 	];
 	$sdd->addPayment($payment);
