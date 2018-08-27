@@ -582,10 +582,7 @@ class SEPASDD {
      * @param $IBAN the IBAN number to check.
      * @return BOOLEAN TRUE if valid, FALSE if invalid.
      */
-    public function validateIBAN($IBAN) {
-	if (array_key_exists('validate', $this->config) && $this->config['validate'] == False) {
-	    return True;
-	}
+    public static function validateIBAN($IBAN) {
 	$result = preg_match("/[A-Z]{2,2}[0-9]{2,2}[a-zA-Z0-9]{1,30}/", $IBAN);
 	if ($result == 0 || $result === False) {
 	    throw new SEPAInvalidIBAN();
@@ -659,10 +656,7 @@ class SEPASDD {
      * @param $BIC the BIC number to check.
      * @return TRUE if valid, FALSE if invalid.
      */
-    public function validateBIC($BIC) {
-	if (array_key_exists('validate', $this->config) && $this->config['validate'] == False) {
-	    return True;
-	}
+    public static function validateBIC($BIC) {
 	$result = preg_match("([a-zA-Z]{4}[a-zA-Z]{2}[a-zA-Z0-9]{2}([a-zA-Z0-9]{3})?)", $BIC);
 	if ($result > 0 && $result !== false) {
 	    return true;
