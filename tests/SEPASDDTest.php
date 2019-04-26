@@ -100,6 +100,7 @@ class SEPASDDTest extends \PHPUnit\Framework\TestCase {
 	$sdd->validateDate("2014-13-22");
 	$this->assertTrue($sdd->validateDate("2012-02-12"));
     }
+
     /**
      * @depends testCreateInstance
      */
@@ -125,6 +126,15 @@ class SEPASDDTest extends \PHPUnit\Framework\TestCase {
     public function testXml(SEPASDD $sdd) {
 	$xml = $sdd->save();
 	$this->assertTrue($sdd->validate($xml));
+    }
+
+    public function testValideIban() {
+	$this->assertTrue(SEPASDD::validateIBAN("FR7820041010071468154T03874"));
+    }
+
+    public function textInvalidIban() {
+	$this->expectException(SEPAInvalidFormat::class);
+	SEPASDD::validateIBAN("FR782004101007146A154T03874");
     }
 
 }

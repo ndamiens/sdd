@@ -1,4 +1,5 @@
 <?php
+
 namespace Congressus;
 
 /*
@@ -399,9 +400,9 @@ class SEPASDD {
 	$domdoc = new \DOMDocument();
 	$domdoc->loadXML($xml);
 	if (isset($this->config['version']) && $this->config['version'] == "3") {
-	    return $domdoc->schemaValidate(__DIR__."/pain.008.001.03.xsd");
+	    return $domdoc->schemaValidate(__DIR__ . "/pain.008.001.03.xsd");
 	} else {
-	    return $domdoc->schemaValidate(__DIR__."/pain.008.001.02.xsd");
+	    return $domdoc->schemaValidate(__DIR__ . "/pain.008.001.02.xsd");
 	}
     }
 
@@ -588,17 +589,17 @@ class SEPASDD {
 	    throw new SEPAInvalidIBAN();
 	}
 
-	$indexArray = array_flip(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C',
-	    'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-	    'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']);
-
 	$IBAN = strtoupper($IBAN);
 	$IBAN = substr($IBAN, 4) . substr($IBAN, 0, 4); // Place CC and Check at back
 
 	$IBANArray = str_split($IBAN);
 	$IBANDecimal = "";
 	foreach ($IBANArray as $char) {
-	    $IBANDecimal .= $indexArray[$char]; //Convert the iban to decimals
+	    if (is_numeric($char)) {
+		$IBANDecimal .= $char;
+	    } else {
+		$IBANDecimal .= ord($char) - ord("A") + 10;
+	    }
 	}
 
 	//To avoid the big number issues, we split the modulus into iterations.
@@ -612,9 +613,9 @@ class SEPASDD {
 
 	for ($i = 0; $i <= $chunks; $i++) {
 	    $IBANDecimal = $startmod . $IBANDecimal;
-	    $startchunk = substr($IBANDecimal, 0, 7);
+	    $startchunk = substr($IBANDecimal, 0, 8);
 	    $startmod = intval($startchunk) % 97;
-	    $IBANDecimal = substr($IBANDecimal, 7);
+	    $IBANDecimal = substr($IBANDecimal, 8);
 	}
 
 	//Check if we have a chunk with less than 7 numbers.
