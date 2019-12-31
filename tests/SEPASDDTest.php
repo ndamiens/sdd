@@ -180,7 +180,7 @@ class SEPASDDTest extends \PHPUnit\Framework\TestCase {
         $doc = new \DOMDocument();
         $doc->loadXML($xml);
         $ctrlSumNodes = $doc->getElementsByTagName("CtrlSum");
-        for ($i=0;$i<$ctrlSumNodes->count(); $i++) {
+        for ($i=0;$i<$ctrlSumNodes->length; $i++) {
             $this->assertEquals($wanted_total, $ctrlSumNodes->item($i)->nodeValue);
         }
         $this->assertTrue($sepasdd->validate($xml));
