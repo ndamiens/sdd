@@ -137,4 +137,53 @@ class SEPASDDTest extends \PHPUnit\Framework\TestCase {
         SEPASDD::validateIBAN("FR782004101007146A154T03874");
     }
 
+    public function testBigSum() {
+        $config = [
+            "name" => "Test",
+            "IBAN" => "FR7630006000011234567890189",
+            "BIC" => "BANKNL2A",
+            "batch" => true,
+            "creditor_id" => "00000",
+            "currency" => "EUR"
+        ];
+        $sepasdd = new SEPASDD($config);
+        $ref = new \ReflectionClass(SEPASDD::class);
+        $method = $ref->getMethod("calcTotalAmount");
+        $values = array_map(function ($v) {
+            return trim($v);
+        }, file(__DIR__ . "/values.txt"));
+
+        $method->setAccessible(true);
+        $total = $method->invoke($sepasdd, $values);
+        $wanted_total = 704588.70;
+        $this->assertEquals($wanted_total, $total, "count : " . count($values));
+
+        foreach ($values as $value) {
+            $payment = [
+                "name" => "Test von Testenstein",
+                "IBAN" => "FR7630001007941234567890185",
+                //"BIC" => "BANKNL2A", <- Optional, banks may disallow BIC in future
+                "amount" => $value*100,
+                "type" => "FRST",
+                "collection_date" => date("Y-m-d"),
+                "mandate_id" => "1234",
+                "mandate_date" => "2014-02-15",
+                "description" => "Test transaction"
+            ];
+            $sepasdd->addPayment($payment);
+        }
+        $infos = $sepasdd->getDirectDebitInfo();
+        $this->assertEquals($wanted_total*100, $infos['TotalAmount']);
+        $this->assertEquals($wanted_total, $infos['Batches'][0]['BatchAmount']);
+        $this->assertEquals(count($values), $infos['Batches'][0]['BatchTransactions']);
+        $xml = $sepasdd->save();
+        $doc = new \DOMDocument();
+        $doc->loadXML($xml);
+        $ctrlSumNodes = $doc->getElementsByTagName("CtrlSum");
+        for ($i=0;$i<$ctrlSumNodes->count(); $i++) {
+            $this->assertEquals($wanted_total, $ctrlSumNodes->item($i)->nodeValue);
+        }
+        $this->assertTrue($sepasdd->validate($xml));
+    }
+
 }

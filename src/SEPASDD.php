@@ -142,6 +142,7 @@ class SEPASDD {
     public function addPayment($payment) {
         //First validate the payment array
         $validationResult = $this->validatePayment($payment);
+        $payment_amount = $payment['amount']/100;
         if ($validationResult !== true) {
             throw new \Exception("Invalid Payment, error with: " . $validationResult);
         }
@@ -195,7 +196,7 @@ class SEPASDD {
             $PmtMtdNode->nodeValue = "DD"; //Direct Debit
             $BtchBookgNode->nodeValue = "false";
             $NbOfTxsNode->nodeValue = "1";
-            $CtrlSumNode->nodeValue = $payment['amount'];
+            $CtrlSumNode->nodeValue = $payment_amount;
             $Cd_SvcLvl_Node->nodeValue = "SEPA";
             $Cd_LclInstrm_Node->nodeValue = "CORE";
             $SeqTpNode->nodeValue = $payment['type']; //Define a check for: FRST RCUR OOFF FNAL
@@ -259,7 +260,7 @@ class SEPASDD {
 
         //Set the payment node information
         $InstdAmtNode->setAttribute("Ccy", $this->config['currency']);
-        $InstdAmtNode->nodeValue = $payment['amount'];
+        $InstdAmtNode->nodeValue = $payment_amount;
 
         $MndtIdNode->nodeValue = $payment['mandate_id'];
         $DtOfSgntrNode->nodeValue = $payment['mandate_date'];
@@ -367,7 +368,7 @@ class SEPASDD {
             $CstmrDrctDbtInitnNode->appendChild($PmtInfNode);
         } else {
             //Update the batch metrics
-            $batch['ctrlSum']->nodeValue = bcadd($batch['ctrlSum']->nodeValue, $payment['amount'], 2);
+            $batch['ctrlSum']->nodeValue = bcadd($batch['ctrlSum']->nodeValue, $payment_amount, 2);
             $batch['nbOfTxs']->nodeValue++;
 
             //Add to the batch
@@ -1033,7 +1034,7 @@ class SEPASDD {
                 }
             }
         }
-        $info['TotalAmount'] = $info['TotalAmount'];
+        $info['TotalAmount'] = $info['TotalAmount']*100;
         $info['FirstCollectionDate'] = $info['FirstCollectionDate']->format('Y-m-d');
         return $info;
     }
