@@ -38,17 +38,17 @@ class SEPASDD {
     private $batchArray = array();
 
     function __construct($config) {
-	//Check the config
-	$this->config = $config;
-	$config_validator = $this->validateConfig($config);
+        //Check the config
+        $this->config = $config;
+        $config_validator = $this->validateConfig($config);
 
-	if ($config_validator !== true) {
-	    throw new \Exception("Invalid config file: " . $config_validator);
-	}
+        if ($config_validator !== true) {
+            throw new \Exception("Invalid config file: " . $config_validator);
+        }
 
-	//Prepare the document
-	$this->prepareDocument();
-	$this->createGroupHeader();
+        //Prepare the document
+        $this->prepareDocument();
+        $this->createGroupHeader();
     }
 
 //__construct
@@ -57,36 +57,36 @@ class SEPASDD {
      * Build the main document node and set xml namespaces.
      */
     private function prepareDocument() {
-	//Create the XML Instance
-	$this->xml = new \DOMDocument("1.0", "UTF-8");
+        //Create the XML Instance
+        $this->xml = new \DOMDocument("1.0", "UTF-8");
 
-	//Set formatting options
-	$this->xml->preserveWhiteSpace = false;
-	$this->xml->formatOutput = true;
+        //Set formatting options
+        $this->xml->preserveWhiteSpace = false;
+        $this->xml->formatOutput = true;
 
-	//Create the document node
-	$documentNode = $this->xml->createElement("Document");
+        //Create the document node
+        $documentNode = $this->xml->createElement("Document");
 
-	//set the namespace
-	$documentAttributeXMLNS = $this->xml->createAttribute("xmlns");
-	if (isset($this->config['version']) && $this->config['version'] == "3") {
-	    $documentAttributeXMLNS->value = "urn:iso:std:iso:20022:tech:xsd:pain.008.001.03";
-	} else {
-	    $documentAttributeXMLNS->value = "urn:iso:std:iso:20022:tech:xsd:pain.008.001.02";
-	}
-	$documentNode->appendChild($documentAttributeXMLNS);
+        //set the namespace
+        $documentAttributeXMLNS = $this->xml->createAttribute("xmlns");
+        if (isset($this->config['version']) && $this->config['version'] == "3") {
+            $documentAttributeXMLNS->value = "urn:iso:std:iso:20022:tech:xsd:pain.008.001.03";
+        } else {
+            $documentAttributeXMLNS->value = "urn:iso:std:iso:20022:tech:xsd:pain.008.001.02";
+        }
+        $documentNode->appendChild($documentAttributeXMLNS);
 
-	//set the namespace url
-	$documentAttributeXMLNSXSI = $this->xml->createAttribute("xmlns:xsi");
-	$documentAttributeXMLNSXSI->value = "http://www.w3.org/2001/XMLSchema-instance";
-	$documentNode->appendChild($documentAttributeXMLNSXSI);
+        //set the namespace url
+        $documentAttributeXMLNSXSI = $this->xml->createAttribute("xmlns:xsi");
+        $documentAttributeXMLNSXSI->value = "http://www.w3.org/2001/XMLSchema-instance";
+        $documentNode->appendChild($documentAttributeXMLNSXSI);
 
-	//create the Direct Debit node
-	$CstmrDrctDbtInitnNode = $this->xml->createElement("CstmrDrctDbtInitn");
-	$documentNode->appendChild($CstmrDrctDbtInitnNode);
+        //create the Direct Debit node
+        $CstmrDrctDbtInitnNode = $this->xml->createElement("CstmrDrctDbtInitn");
+        $documentNode->appendChild($CstmrDrctDbtInitnNode);
 
-	//append the document node to the XML Instance
-	$this->xml->appendChild($documentNode);
+        //append the document node to the XML Instance
+        $this->xml->appendChild($documentNode);
     }
 
 //prepareDocument
@@ -95,41 +95,41 @@ class SEPASDD {
      * Function to create the GroupHeader (GrpHdr) in the CstmrDrctDbtInit Node
      */
     private function createGroupHeader() {
-	//Retrieve the CstmrDrctDbtInitn node
-	$CstmrDrctDbtInitnNode = $this->getCstmrDrctDbtInitnNode();
+        //Retrieve the CstmrDrctDbtInitn node
+        $CstmrDrctDbtInitnNode = $this->getCstmrDrctDbtInitnNode();
 
-	//Create the required nodes
-	$GrpHdrNode = $this->xml->createElement("GrpHdr");
-	$MsgIdNode = $this->xml->createElement("MsgId");
-	$CreDtTmNode = $this->xml->createElement("CreDtTm");
-	$NbOfTxsNode = $this->xml->createElement("NbOfTxs");
-	$CtrlSumNode = $this->xml->createElement("CtrlSum");
-	$InitgPtyNode = $this->xml->createElement("InitgPty");
-	$NmNode = $this->xml->createElement("Nm");
+        //Create the required nodes
+        $GrpHdrNode = $this->xml->createElement("GrpHdr");
+        $MsgIdNode = $this->xml->createElement("MsgId");
+        $CreDtTmNode = $this->xml->createElement("CreDtTm");
+        $NbOfTxsNode = $this->xml->createElement("NbOfTxs");
+        $CtrlSumNode = $this->xml->createElement("CtrlSum");
+        $InitgPtyNode = $this->xml->createElement("InitgPty");
+        $NmNode = $this->xml->createElement("Nm");
 
-	//Set the values for the nodes
-	$MsgIdNode->nodeValue = $this->makeMsgId();
-	$CreDtTmNode->nodeValue = date('Y-m-d\TH:i:s', time());
+        //Set the values for the nodes
+        $MsgIdNode->nodeValue = $this->makeMsgId();
+        $CreDtTmNode->nodeValue = date('Y-m-d\TH:i:s', time());
 
-	//If using lower than PHP 5.4.0, there is no ENT_XML1
-	if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-	    $NmNode->nodeValue = htmlentities($this->config['name'], ENT_XML1, 'UTF-8');
-	} else {
-	    $NmNode->nodeValue = htmlentities($this->config['name'], ENT_QUOTES, 'UTF-8');
-	}
+        //If using lower than PHP 5.4.0, there is no ENT_XML1
+        if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+            $NmNode->nodeValue = htmlentities($this->config['name'], ENT_XML1, 'UTF-8');
+        } else {
+            $NmNode->nodeValue = htmlentities($this->config['name'], ENT_QUOTES, 'UTF-8');
+        }
 
 
 
-	//Append the nodes
-	$InitgPtyNode->appendChild($NmNode);
-	$GrpHdrNode->appendChild($MsgIdNode);
-	$GrpHdrNode->appendChild($CreDtTmNode);
-	$GrpHdrNode->appendChild($NbOfTxsNode);
-	$GrpHdrNode->appendChild($CtrlSumNode);
-	$GrpHdrNode->appendChild($InitgPtyNode);
+        //Append the nodes
+        $InitgPtyNode->appendChild($NmNode);
+        $GrpHdrNode->appendChild($MsgIdNode);
+        $GrpHdrNode->appendChild($CreDtTmNode);
+        $GrpHdrNode->appendChild($NbOfTxsNode);
+        $GrpHdrNode->appendChild($CtrlSumNode);
+        $GrpHdrNode->appendChild($InitgPtyNode);
 
-	//Append the header to its parent
-	$CstmrDrctDbtInitnNode->appendChild($GrpHdrNode);
+        //Append the header to its parent
+        $CstmrDrctDbtInitnNode->appendChild($GrpHdrNode);
     }
 
 //createGroupHeader
@@ -140,241 +140,241 @@ class SEPASDD {
      * @throws Exception if payment array is invalid.
      */
     public function addPayment($payment) {
-	//First validate the payment array
-	$validationResult = $this->validatePayment($payment);
-	if ($validationResult !== true) {
-	    throw new \Exception("Invalid Payment, error with: " . $validationResult);
-	}
+        //First validate the payment array
+        $validationResult = $this->validatePayment($payment);
+        if ($validationResult !== true) {
+            throw new \Exception("Invalid Payment, error with: " . $validationResult);
+        }
 
-	//Get the CstmrDrctDbtInitnNode 
-	$CstmrDrctDbtInitnNode = $this->getCstmrDrctDbtInitnNode();
+        //Get the CstmrDrctDbtInitnNode 
+        $CstmrDrctDbtInitnNode = $this->getCstmrDrctDbtInitnNode();
 
-	//If there is a batch, the batch will create this information.
-	if ($this->config['batch'] == false) {
-	    $PmtInfNode = $this->xml->createElement("PmtInf");
-	    $PmtInfIdNode = $this->xml->createElement("PmtInfId");
-	    $PmtMtdNode = $this->xml->createElement("PmtMtd");
-	    $BtchBookgNode = $this->xml->createElement("BtchBookg");
-	    $NbOfTxsNode = $this->xml->createElement("NbOfTxs");
-	    $CtrlSumNode = $this->xml->createElement("CtrlSum");
-	    $PmtTpInfNode = $this->xml->createElement("PmtTpInf");
-	    $SvcLvlNode = $this->xml->createElement("SvcLvl");
-	    $Cd_SvcLvl_Node = $this->xml->createElement("Cd");
-	    $LclInstrmNode = $this->xml->createElement("LclInstrm");
-	    $Cd_LclInstrm_Node = $this->xml->createElement("Cd");
-	    $SeqTpNode = $this->xml->createElement("SeqTp");
-	    $ReqdColltnDtNode = $this->xml->createElement("ReqdColltnDt");
-	    $CdtrNode = $this->xml->createElement("Cdtr");
-	    $Nm_Cdtr_Node = $this->xml->createElement("Nm");
-	    $CdtrAcctNode = $this->xml->createElement("CdtrAcct");
-	    $Id_CdtrAcct_Node = $this->xml->createElement("Id");
-	    $IBAN_CdtrAcct_Node = $this->xml->createElement("IBAN");
-	    $CdtrAgtNode = $this->xml->createElement("CdtrAgt");
-	    $FinInstnId_CdtrAgt_Node = $this->xml->createElement("FinInstnId");
-	    if (isset($this->config['BIC'])) {
-		if (isset($this->config['version']) && $this->config['version'] == "3") {
-		    $BIC_CdtrAgt_Node = $this->xml->createElement("BICFI");
-		} else {
-		    $BIC_CdtrAgt_Node = $this->xml->createElement("BIC");
-		}
-	    } else {
-		$Othr_CdtrAgt_Node = $this->xml->createElement("Othr");
-		$Id_Othr_CdtrAgt_Node = $this->xml->createElement("Id");
-	    }
-	    $ChrgBrNode = $this->xml->createElement("ChrgBr");
-	    $CdtrSchmeIdNode = $this->xml->createElement("CdtrSchmeId");
-	    $Nm_CdtrSchmeId_Node = $this->xml->createElement("Nm");
-	    $Id_CdtrSchmeId_Node = $this->xml->createElement("Id");
-	    $PrvtIdNode = $this->xml->createElement("PrvtId");
-	    $OthrNode = $this->xml->createElement("Othr");
-	    $Id_Othr_Node = $this->xml->createElement("Id");
-	    $SchmeNmNode = $this->xml->createElement("SchmeNm");
-	    $PrtryNode = $this->xml->createElement("Prtry");
+        //If there is a batch, the batch will create this information.
+        if ($this->config['batch'] == false) {
+            $PmtInfNode = $this->xml->createElement("PmtInf");
+            $PmtInfIdNode = $this->xml->createElement("PmtInfId");
+            $PmtMtdNode = $this->xml->createElement("PmtMtd");
+            $BtchBookgNode = $this->xml->createElement("BtchBookg");
+            $NbOfTxsNode = $this->xml->createElement("NbOfTxs");
+            $CtrlSumNode = $this->xml->createElement("CtrlSum");
+            $PmtTpInfNode = $this->xml->createElement("PmtTpInf");
+            $SvcLvlNode = $this->xml->createElement("SvcLvl");
+            $Cd_SvcLvl_Node = $this->xml->createElement("Cd");
+            $LclInstrmNode = $this->xml->createElement("LclInstrm");
+            $Cd_LclInstrm_Node = $this->xml->createElement("Cd");
+            $SeqTpNode = $this->xml->createElement("SeqTp");
+            $ReqdColltnDtNode = $this->xml->createElement("ReqdColltnDt");
+            $CdtrNode = $this->xml->createElement("Cdtr");
+            $Nm_Cdtr_Node = $this->xml->createElement("Nm");
+            $CdtrAcctNode = $this->xml->createElement("CdtrAcct");
+            $Id_CdtrAcct_Node = $this->xml->createElement("Id");
+            $IBAN_CdtrAcct_Node = $this->xml->createElement("IBAN");
+            $CdtrAgtNode = $this->xml->createElement("CdtrAgt");
+            $FinInstnId_CdtrAgt_Node = $this->xml->createElement("FinInstnId");
+            if (isset($this->config['BIC'])) {
+                if (isset($this->config['version']) && $this->config['version'] == "3") {
+                    $BIC_CdtrAgt_Node = $this->xml->createElement("BICFI");
+                } else {
+                    $BIC_CdtrAgt_Node = $this->xml->createElement("BIC");
+                }
+            } else {
+                $Othr_CdtrAgt_Node = $this->xml->createElement("Othr");
+                $Id_Othr_CdtrAgt_Node = $this->xml->createElement("Id");
+            }
+            $ChrgBrNode = $this->xml->createElement("ChrgBr");
+            $CdtrSchmeIdNode = $this->xml->createElement("CdtrSchmeId");
+            $Nm_CdtrSchmeId_Node = $this->xml->createElement("Nm");
+            $Id_CdtrSchmeId_Node = $this->xml->createElement("Id");
+            $PrvtIdNode = $this->xml->createElement("PrvtId");
+            $OthrNode = $this->xml->createElement("Othr");
+            $Id_Othr_Node = $this->xml->createElement("Id");
+            $SchmeNmNode = $this->xml->createElement("SchmeNm");
+            $PrtryNode = $this->xml->createElement("Prtry");
 
-	    $PmtInfIdNode->nodeValue = $this->makeId();
-	    $PmtMtdNode->nodeValue = "DD"; //Direct Debit
-	    $BtchBookgNode->nodeValue = "false";
-	    $NbOfTxsNode->nodeValue = "1";
-	    $CtrlSumNode->nodeValue = $payment['amount'];
-	    $Cd_SvcLvl_Node->nodeValue = "SEPA";
-	    $Cd_LclInstrm_Node->nodeValue = "CORE";
-	    $SeqTpNode->nodeValue = $payment['type']; //Define a check for: FRST RCUR OOFF FNAL
-	    $ReqdColltnDtNode->nodeValue = $payment['collection_date'];
+            $PmtInfIdNode->nodeValue = $this->makeId();
+            $PmtMtdNode->nodeValue = "DD"; //Direct Debit
+            $BtchBookgNode->nodeValue = "false";
+            $NbOfTxsNode->nodeValue = "1";
+            $CtrlSumNode->nodeValue = $payment['amount'];
+            $Cd_SvcLvl_Node->nodeValue = "SEPA";
+            $Cd_LclInstrm_Node->nodeValue = "CORE";
+            $SeqTpNode->nodeValue = $payment['type']; //Define a check for: FRST RCUR OOFF FNAL
+            $ReqdColltnDtNode->nodeValue = $payment['collection_date'];
 
-	    if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-		$Nm_Cdtr_Node->nodeValue = htmlentities($this->config['name'], ENT_XML1, 'UTF-8');
-	    } else {
-		$Nm_Cdtr_Node->nodeValue = htmlentities($this->config['name'], ENT_QUOTES, 'UTF-8');
-	    }
+            if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+                $Nm_Cdtr_Node->nodeValue = htmlentities($this->config['name'], ENT_XML1, 'UTF-8');
+            } else {
+                $Nm_Cdtr_Node->nodeValue = htmlentities($this->config['name'], ENT_QUOTES, 'UTF-8');
+            }
 
-	    $IBAN_CdtrAcct_Node->nodeValue = $this->config['IBAN'];
-	    if (isset($this->config['BIC'])) {
-		$BIC_CdtrAgt_Node->nodeValue = $this->config['BIC'];
-	    } else {
-		$Id_Othr_CdtrAgt_Node->nodeValue = "NOTPROVIDED";
-	    }
-	    $ChrgBrNode->nodeValue = "SLEV";
+            $IBAN_CdtrAcct_Node->nodeValue = $this->config['IBAN'];
+            if (isset($this->config['BIC'])) {
+                $BIC_CdtrAgt_Node->nodeValue = $this->config['BIC'];
+            } else {
+                $Id_Othr_CdtrAgt_Node->nodeValue = "NOTPROVIDED";
+            }
+            $ChrgBrNode->nodeValue = "SLEV";
 
-	    if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-		$Nm_CdtrSchmeId_Node->nodeValue = htmlentities($this->config['name'], ENT_XML1, 'UTF-8');
-	    } else {
-		$Nm_CdtrSchmeId_Node->nodeValue = htmlentities($this->config['name'], ENT_QUOTES, 'UTF-8');
-	    }
+            if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+                $Nm_CdtrSchmeId_Node->nodeValue = htmlentities($this->config['name'], ENT_XML1, 'UTF-8');
+            } else {
+                $Nm_CdtrSchmeId_Node->nodeValue = htmlentities($this->config['name'], ENT_QUOTES, 'UTF-8');
+            }
 
-	    $Id_Othr_Node->nodeValue = $this->config['creditor_id'];
-	    $PrtryNode->nodeValue = "SEPA";
-	} else {
-	    //Get the batch node for this kind of payment to add the DrctDbtTxInf node.
-	    $batch = $this->getBatch($payment['type'], $payment['collection_date']);
-	}
+            $Id_Othr_Node->nodeValue = $this->config['creditor_id'];
+            $PrtryNode->nodeValue = "SEPA";
+        } else {
+            //Get the batch node for this kind of payment to add the DrctDbtTxInf node.
+            $batch = $this->getBatch($payment['type'], $payment['collection_date']);
+        }
 
-	//Create the payment node.
-	$DrctDbtTxInfNode = $this->xml->createElement("DrctDbtTxInf");
-	$PmtIdNode = $this->xml->createElement("PmtId");
-	$EndToEndIdNode = $this->xml->createElement("EndToEndId");
-	$InstdAmtNode = $this->xml->createElement("InstdAmt");
-	$DrctDbtTxNode = $this->xml->createElement("DrctDbtTx");
-	$MndtRltdInfNode = $this->xml->createElement("MndtRltdInf");
-	$MndtIdNode = $this->xml->createElement("MndtId");
-	$DtOfSgntrNode = $this->xml->createElement("DtOfSgntr");
-	$DbtrAgtNode = $this->xml->createElement("DbtrAgt");
-	$FinInstnId_DbtrAgt_Node = $this->xml->createElement("FinInstnId");
-	if (isset($payment['BIC'])) {
-	    if (isset($this->config['version']) && $this->config['version'] == "3") {
-		$BIC_DbtrAgt_Node = $this->xml->createElement("BICFI");
-	    } else {
-		$BIC_DbtrAgt_Node = $this->xml->createElement("BIC");
-	    }
-	} else {
-	    $Othr_DbtrAgt_Node = $this->xml->createElement("Othr");
-	    $Id_Othr_DbtrAgt_Node = $this->xml->createElement("Id");
-	}
-	$DbtrNode = $this->xml->createElement("Dbtr");
-	$Nm_Dbtr_Node = $this->xml->createElement("Nm");
-	$DbtrAcctNode = $this->xml->createElement("DbtrAcct");
-	$Id_DbtrAcct_Node = $this->xml->createElement("Id");
-	$IBAN_DbtrAcct_Node = $this->xml->createElement("IBAN");
-	$RmtInfNode = $this->xml->createElement("RmtInf");
-	$UstrdNode = $this->xml->createElement("Ustrd");
+        //Create the payment node.
+        $DrctDbtTxInfNode = $this->xml->createElement("DrctDbtTxInf");
+        $PmtIdNode = $this->xml->createElement("PmtId");
+        $EndToEndIdNode = $this->xml->createElement("EndToEndId");
+        $InstdAmtNode = $this->xml->createElement("InstdAmt");
+        $DrctDbtTxNode = $this->xml->createElement("DrctDbtTx");
+        $MndtRltdInfNode = $this->xml->createElement("MndtRltdInf");
+        $MndtIdNode = $this->xml->createElement("MndtId");
+        $DtOfSgntrNode = $this->xml->createElement("DtOfSgntr");
+        $DbtrAgtNode = $this->xml->createElement("DbtrAgt");
+        $FinInstnId_DbtrAgt_Node = $this->xml->createElement("FinInstnId");
+        if (isset($payment['BIC'])) {
+            if (isset($this->config['version']) && $this->config['version'] == "3") {
+                $BIC_DbtrAgt_Node = $this->xml->createElement("BICFI");
+            } else {
+                $BIC_DbtrAgt_Node = $this->xml->createElement("BIC");
+            }
+        } else {
+            $Othr_DbtrAgt_Node = $this->xml->createElement("Othr");
+            $Id_Othr_DbtrAgt_Node = $this->xml->createElement("Id");
+        }
+        $DbtrNode = $this->xml->createElement("Dbtr");
+        $Nm_Dbtr_Node = $this->xml->createElement("Nm");
+        $DbtrAcctNode = $this->xml->createElement("DbtrAcct");
+        $Id_DbtrAcct_Node = $this->xml->createElement("Id");
+        $IBAN_DbtrAcct_Node = $this->xml->createElement("IBAN");
+        $RmtInfNode = $this->xml->createElement("RmtInf");
+        $UstrdNode = $this->xml->createElement("Ustrd");
 
-	//Set the payment node information
-	$InstdAmtNode->setAttribute("Ccy", $this->config['currency']);
-	$InstdAmtNode->nodeValue =$payment['amount'];
+        //Set the payment node information
+        $InstdAmtNode->setAttribute("Ccy", $this->config['currency']);
+        $InstdAmtNode->nodeValue = $payment['amount'];
 
-	$MndtIdNode->nodeValue = $payment['mandate_id'];
-	$DtOfSgntrNode->nodeValue = $payment['mandate_date'];
+        $MndtIdNode->nodeValue = $payment['mandate_id'];
+        $DtOfSgntrNode->nodeValue = $payment['mandate_date'];
 
-	if (isset($payment['BIC'])) {
-	    $BIC_DbtrAgt_Node->nodeValue = $payment['BIC'];
-	} else {
-	    $Id_Othr_DbtrAgt_Node->nodeValue = "NOTPROVIDED";
-	}
+        if (isset($payment['BIC'])) {
+            $BIC_DbtrAgt_Node->nodeValue = $payment['BIC'];
+        } else {
+            $Id_Othr_DbtrAgt_Node->nodeValue = "NOTPROVIDED";
+        }
 
-	if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-	    $Nm_Dbtr_Node->nodeValue = htmlentities($payment['name'], ENT_XML1, 'UTF-8');
-	} else {
-	    $Nm_Dbtr_Node->nodeValue = htmlentities($payment['name'], ENT_QUOTES, 'UTF-8');
-	}
+        if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+            $Nm_Dbtr_Node->nodeValue = htmlentities($payment['name'], ENT_XML1, 'UTF-8');
+        } else {
+            $Nm_Dbtr_Node->nodeValue = htmlentities($payment['name'], ENT_QUOTES, 'UTF-8');
+        }
 
-	$IBAN_DbtrAcct_Node->nodeValue = $payment['IBAN'];
+        $IBAN_DbtrAcct_Node->nodeValue = $payment['IBAN'];
 
-	if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-	    $UstrdNode->nodeValue = htmlentities($payment['description'], ENT_XML1, 'UTF-8');
-	} else {
-	    $UstrdNode->nodeValue = htmlentities($payment['description'], ENT_QUOTES, 'UTF-8');
-	}
+        if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+            $UstrdNode->nodeValue = htmlentities($payment['description'], ENT_XML1, 'UTF-8');
+        } else {
+            $UstrdNode->nodeValue = htmlentities($payment['description'], ENT_QUOTES, 'UTF-8');
+        }
 
-	$EndToEndIdNode->nodeValue = ( empty($payment['end_to_end_id']) ? $this->makeId() : $payment['end_to_end_id']);
+        $EndToEndIdNode->nodeValue = ( empty($payment['end_to_end_id']) ? $this->makeId() : $payment['end_to_end_id']);
 
-	//Fold the nodes, if batch is enabled, some of this will be done by the batch.
-	if ($this->config['batch'] == false) {
-	    $PmtInfNode->appendChild($PmtInfIdNode);
-	    $PmtInfNode->appendChild($PmtMtdNode);
-	    $PmtInfNode->appendChild($BtchBookgNode);
-	    $PmtInfNode->appendChild($NbOfTxsNode);
-	    $PmtInfNode->appendChild($CtrlSumNode);
+        //Fold the nodes, if batch is enabled, some of this will be done by the batch.
+        if ($this->config['batch'] == false) {
+            $PmtInfNode->appendChild($PmtInfIdNode);
+            $PmtInfNode->appendChild($PmtMtdNode);
+            $PmtInfNode->appendChild($BtchBookgNode);
+            $PmtInfNode->appendChild($NbOfTxsNode);
+            $PmtInfNode->appendChild($CtrlSumNode);
 
-	    $SvcLvlNode->appendChild($Cd_SvcLvl_Node);
-	    $PmtTpInfNode->appendChild($SvcLvlNode);
-	    $LclInstrmNode->appendChild($Cd_LclInstrm_Node);
-	    $PmtTpInfNode->appendChild($LclInstrmNode);
-	    $PmtTpInfNode->appendChild($SeqTpNode);
-	    $PmtInfNode->appendChild($PmtTpInfNode);
-	    $PmtInfNode->appendChild($ReqdColltnDtNode);
+            $SvcLvlNode->appendChild($Cd_SvcLvl_Node);
+            $PmtTpInfNode->appendChild($SvcLvlNode);
+            $LclInstrmNode->appendChild($Cd_LclInstrm_Node);
+            $PmtTpInfNode->appendChild($LclInstrmNode);
+            $PmtTpInfNode->appendChild($SeqTpNode);
+            $PmtInfNode->appendChild($PmtTpInfNode);
+            $PmtInfNode->appendChild($ReqdColltnDtNode);
 
-	    $CdtrNode->appendChild($Nm_Cdtr_Node);
-	    $PmtInfNode->appendChild($CdtrNode);
+            $CdtrNode->appendChild($Nm_Cdtr_Node);
+            $PmtInfNode->appendChild($CdtrNode);
 
-	    $Id_CdtrAcct_Node->appendChild($IBAN_CdtrAcct_Node);
-	    $CdtrAcctNode->appendChild($Id_CdtrAcct_Node);
-	    $PmtInfNode->appendChild($CdtrAcctNode);
+            $Id_CdtrAcct_Node->appendChild($IBAN_CdtrAcct_Node);
+            $CdtrAcctNode->appendChild($Id_CdtrAcct_Node);
+            $PmtInfNode->appendChild($CdtrAcctNode);
 
-	    if (isset($config['BIC'])) {
-		$FinInstnId_CdtrAgt_Node->appendChild($BIC_CdtrAgt_Node);
-	    } else {
-		$Othr_CdtrAgt_Node->appendChild($Id_Othr_CdtrAgt_Node);
-		$FinInstnId_CdtrAgt_Node->appendChild($Othr_CdtrAgt_Node);
-	    }
-	    $CdtrAgtNode->appendChild($FinInstnId_CdtrAgt_Node);
-	    $PmtInfNode->appendChild($CdtrAgtNode);
+            if (isset($config['BIC'])) {
+                $FinInstnId_CdtrAgt_Node->appendChild($BIC_CdtrAgt_Node);
+            } else {
+                $Othr_CdtrAgt_Node->appendChild($Id_Othr_CdtrAgt_Node);
+                $FinInstnId_CdtrAgt_Node->appendChild($Othr_CdtrAgt_Node);
+            }
+            $CdtrAgtNode->appendChild($FinInstnId_CdtrAgt_Node);
+            $PmtInfNode->appendChild($CdtrAgtNode);
 
-	    $PmtInfNode->appendChild($ChrgBrNode);
+            $PmtInfNode->appendChild($ChrgBrNode);
 
-	    $CdtrSchmeIdNode->appendChild($Nm_CdtrSchmeId_Node);
-	    $OthrNode->appendChild($Id_Othr_Node);
-	    $SchmeNmNode->appendChild($PrtryNode);
-	    $OthrNode->appendChild($SchmeNmNode);
-	    $PrvtIdNode->appendChild($OthrNode);
-	    $Id_CdtrSchmeId_Node->appendChild($PrvtIdNode);
-	    $CdtrSchmeIdNode->appendChild($Id_CdtrSchmeId_Node);
-	    $PmtInfNode->appendChild($CdtrSchmeIdNode);
-	}
-	$PmtIdNode->appendChild($EndToEndIdNode);
+            $CdtrSchmeIdNode->appendChild($Nm_CdtrSchmeId_Node);
+            $OthrNode->appendChild($Id_Othr_Node);
+            $SchmeNmNode->appendChild($PrtryNode);
+            $OthrNode->appendChild($SchmeNmNode);
+            $PrvtIdNode->appendChild($OthrNode);
+            $Id_CdtrSchmeId_Node->appendChild($PrvtIdNode);
+            $CdtrSchmeIdNode->appendChild($Id_CdtrSchmeId_Node);
+            $PmtInfNode->appendChild($CdtrSchmeIdNode);
+        }
+        $PmtIdNode->appendChild($EndToEndIdNode);
 
-	$DrctDbtTxInfNode->appendChild($PmtIdNode);
-	$DrctDbtTxInfNode->appendChild($InstdAmtNode);
+        $DrctDbtTxInfNode->appendChild($PmtIdNode);
+        $DrctDbtTxInfNode->appendChild($InstdAmtNode);
 
-	$MndtRltdInfNode->appendChild($MndtIdNode);
-	$MndtRltdInfNode->appendChild($DtOfSgntrNode);
-	$DrctDbtTxNode->appendChild($MndtRltdInfNode);
-	$DrctDbtTxInfNode->appendChild($DrctDbtTxNode);
+        $MndtRltdInfNode->appendChild($MndtIdNode);
+        $MndtRltdInfNode->appendChild($DtOfSgntrNode);
+        $DrctDbtTxNode->appendChild($MndtRltdInfNode);
+        $DrctDbtTxInfNode->appendChild($DrctDbtTxNode);
 
-	if (isset($payment['BIC'])) {
-	    $FinInstnId_DbtrAgt_Node->appendChild($BIC_DbtrAgt_Node);
-	} else {
-	    $Othr_DbtrAgt_Node->appendChild($Id_Othr_DbtrAgt_Node);
-	    $FinInstnId_DbtrAgt_Node->appendChild($Othr_DbtrAgt_Node);
-	}
-	$DbtrAgtNode->appendChild($FinInstnId_DbtrAgt_Node);
-	$DrctDbtTxInfNode->appendChild($DbtrAgtNode);
-	$DbtrNode->appendChild($Nm_Dbtr_Node);
-	$DrctDbtTxInfNode->appendChild($DbtrNode);
+        if (isset($payment['BIC'])) {
+            $FinInstnId_DbtrAgt_Node->appendChild($BIC_DbtrAgt_Node);
+        } else {
+            $Othr_DbtrAgt_Node->appendChild($Id_Othr_DbtrAgt_Node);
+            $FinInstnId_DbtrAgt_Node->appendChild($Othr_DbtrAgt_Node);
+        }
+        $DbtrAgtNode->appendChild($FinInstnId_DbtrAgt_Node);
+        $DrctDbtTxInfNode->appendChild($DbtrAgtNode);
+        $DbtrNode->appendChild($Nm_Dbtr_Node);
+        $DrctDbtTxInfNode->appendChild($DbtrNode);
 
-	$Id_DbtrAcct_Node->appendChild($IBAN_DbtrAcct_Node);
-	$DbtrAcctNode->appendChild($Id_DbtrAcct_Node);
-	$DrctDbtTxInfNode->appendChild($DbtrAcctNode);
+        $Id_DbtrAcct_Node->appendChild($IBAN_DbtrAcct_Node);
+        $DbtrAcctNode->appendChild($Id_DbtrAcct_Node);
+        $DrctDbtTxInfNode->appendChild($DbtrAcctNode);
 
-	$RmtInfNode->appendChild($UstrdNode);
-	$DrctDbtTxInfNode->appendChild($RmtInfNode);
+        $RmtInfNode->appendChild($UstrdNode);
+        $DrctDbtTxInfNode->appendChild($RmtInfNode);
 
-	$PmtIdNode->appendChild($EndToEndIdNode);
+        $PmtIdNode->appendChild($EndToEndIdNode);
 
 
-	if ($this->config['batch'] == false) {
+        if ($this->config['batch'] == false) {
 
-	    //Add to the document
-	    $PmtInfNode->appendChild($DrctDbtTxInfNode);
-	    $CstmrDrctDbtInitnNode->appendChild($PmtInfNode);
-	} else {
-	    //Update the batch metrics
-	    $batch['ctrlSum']->nodeValue = bcadd($batch['ctrlSum']->nodeValue, $payment['amount'], 2);
-	    $batch['nbOfTxs']->nodeValue++;
+            //Add to the document
+            $PmtInfNode->appendChild($DrctDbtTxInfNode);
+            $CstmrDrctDbtInitnNode->appendChild($PmtInfNode);
+        } else {
+            //Update the batch metrics
+            $batch['ctrlSum']->nodeValue = bcadd($batch['ctrlSum']->nodeValue, $payment['amount'], 2);
+            $batch['nbOfTxs']->nodeValue++;
 
-	    //Add to the batch
-	    $batch['node']->appendChild($DrctDbtTxInfNode);
-	}
+            //Add to the batch
+            $batch['node']->appendChild($DrctDbtTxInfNode);
+        }
 
-	return $EndToEndIdNode->nodeValue;
+        return $EndToEndIdNode->nodeValue;
     }
 
 //addPayment
@@ -384,9 +384,9 @@ class SEPASDD {
      * @return The XML to be echoed or saved to file.
      */
     public function save() {
-	$this->finalize();
-	$result = $this->xml->saveXML();
-	return $result;
+        $this->finalize();
+        $result = $this->xml->saveXML();
+        return $result;
     }
 
 //save
@@ -396,13 +396,13 @@ class SEPASDD {
      * @param $xml The xml, as a string, to validate against the schema.
      */
     public function validate($xml) {
-	$domdoc = new \DOMDocument();
-	$domdoc->loadXML($xml);
-	if (isset($this->config['version']) && $this->config['version'] == "3") {
-	    return $domdoc->schemaValidate(__DIR__ . "/pain.008.001.03.xsd");
-	} else {
-	    return $domdoc->schemaValidate(__DIR__ . "/pain.008.001.02.xsd");
-	}
+        $domdoc = new \DOMDocument();
+        $domdoc->loadXML($xml);
+        if (isset($this->config['version']) && $this->config['version'] == "3") {
+            return $domdoc->schemaValidate(__DIR__ . "/pain.008.001.03.xsd");
+        } else {
+            return $domdoc->schemaValidate(__DIR__ . "/pain.008.001.02.xsd");
+        }
     }
 
 //validate
@@ -415,21 +415,21 @@ class SEPASDD {
      * @param $attr Key => Value array defining the attributes (Optional, default none)
      */
     public function addCustomNode($parent_XPATH, $name, $value = "", $attr = array()) {
-	$xpath = new \DOMXPath($this->xml);
-	$parent = $xpath->query($parent_XPATH);
-	if ($parent == false || $parent->length == 0) {
-	    throw new \Exception("Invalid XPATH expression, or no results found: " . $parent_XPATH);
-	}
-	$newnode = $this->xml->createElement($name);
-	if ($value != "") {
-	    $newnode->nodeValue = $value;
-	}
-	if (!empty($attr)) {
-	    foreach ($attr as $attr_name => $attr_value) {
-		$newnode->setAttribute($attr_name, $attr_value);
-	    }
-	}
-	$parent->item(0)->appendChild($newnode);
+        $xpath = new \DOMXPath($this->xml);
+        $parent = $xpath->query($parent_XPATH);
+        if ($parent == false || $parent->length == 0) {
+            throw new \Exception("Invalid XPATH expression, or no results found: " . $parent_XPATH);
+        }
+        $newnode = $this->xml->createElement($name);
+        if ($value != "") {
+            $newnode->nodeValue = $value;
+        }
+        if (!empty($attr)) {
+            foreach ($attr as $attr_name => $attr_value) {
+                $newnode->setAttribute($attr_name, $attr_value);
+            }
+        }
+        $parent->item(0)->appendChild($newnode);
     }
 
 //addCustomNode
@@ -438,30 +438,30 @@ class SEPASDD {
      * Function to finalize the document, completes the header with metadata, and processes batches.
      */
     private function finalize() {
-	if (!empty($this->batchArray)) {
-	    $CstmrDrctDbtInitnNode = $this->getCstmrDrctDbtInitnNode();
-	    foreach ($this->batchArray as $batch) {
-		$CstmrDrctDbtInitnNode->appendChild($batch['node']);
-	    }
-	}
+        if (!empty($this->batchArray)) {
+            $CstmrDrctDbtInitnNode = $this->getCstmrDrctDbtInitnNode();
+            foreach ($this->batchArray as $batch) {
+                $CstmrDrctDbtInitnNode->appendChild($batch['node']);
+            }
+        }
 
 
-	$trxCount = $this->xml->getElementsByTagName("DrctDbtTxInf");
-	$trxCount = $trxCount->length;
-	$trxAmounts = $this->xml->getElementsByTagName("InstdAmt");
-	$trxAmountArray = array();
-	foreach ($trxAmounts as $amount) {
-	    $trxAmountArray[] = $amount->nodeValue;
-	}
-	$trxAmount = $this->calcTotalAmount($trxAmountArray);
-	$xpath = new \DOMXPath($this->xml);
-	$NbOfTxs_XPATH = "//Document/CstmrDrctDbtInitn/GrpHdr/NbOfTxs";
-	$CtrlSum_XPATH = "//Document/CstmrDrctDbtInitn/GrpHdr/CtrlSum";
-	$NbOfTxsNode = $xpath->query($NbOfTxs_XPATH)->item(0);
-	$CtrlSumNode = $xpath->query($CtrlSum_XPATH)->item(0);
+        $trxCount = $this->xml->getElementsByTagName("DrctDbtTxInf");
+        $trxCount = $trxCount->length;
+        $trxAmounts = $this->xml->getElementsByTagName("InstdAmt");
+        $trxAmountArray = array();
+        foreach ($trxAmounts as $amount) {
+            $trxAmountArray[] = $amount->nodeValue;
+        }
+        $trxAmount = $this->calcTotalAmount($trxAmountArray);
+        $xpath = new \DOMXPath($this->xml);
+        $NbOfTxs_XPATH = "//Document/CstmrDrctDbtInitn/GrpHdr/NbOfTxs";
+        $CtrlSum_XPATH = "//Document/CstmrDrctDbtInitn/GrpHdr/CtrlSum";
+        $NbOfTxsNode = $xpath->query($NbOfTxs_XPATH)->item(0);
+        $CtrlSumNode = $xpath->query($CtrlSum_XPATH)->item(0);
 
-	$NbOfTxsNode->nodeValue = $trxCount;
-	$CtrlSumNode->nodeValue = $trxAmount;
+        $NbOfTxsNode->nodeValue = $trxCount;
+        $CtrlSumNode->nodeValue = $trxAmount;
     }
 
 //finalize
@@ -474,41 +474,41 @@ class SEPASDD {
      * @return TRUE if valid, error string if invalid.
      */
     private function validateConfig($config) {
-	$required = array("name",
-	    "IBAN",
-	    "batch",
-	    "creditor_id",
-	    "currency");
-	$functions = array("IBAN" => "validateIBAN",
-	    "BIC" => "validateBIC",
-	    "batch" => "validateBatch");
+        $required = array("name",
+            "IBAN",
+            "batch",
+            "creditor_id",
+            "currency");
+        $functions = array("IBAN" => "validateIBAN",
+            "BIC" => "validateBIC",
+            "batch" => "validateBatch");
 
-	foreach ($required as $requirement) {
-	    //Check if the config has the required parameter
-	    if (array_key_exists($requirement, $config)) {
-		//It exists, check if not empty
-		if ($config[$requirement] !== False && empty($config[$requirement])) {
-		    return $requirement . " is empty.";
-		}
-	    } else {
-		return $requirement . " does not exist.";
-	    }
-	}
+        foreach ($required as $requirement) {
+            //Check if the config has the required parameter
+            if (array_key_exists($requirement, $config)) {
+                //It exists, check if not empty
+                if ($config[$requirement] !== False && empty($config[$requirement])) {
+                    return $requirement . " is empty.";
+                }
+            } else {
+                return $requirement . " does not exist.";
+            }
+        }
 
-	foreach ($functions as $target => $function) {
-	    //Check if it is even there in the config
-	    if (array_key_exists($target, $config)) {
-		//Perform the validation
-		$function_result = call_user_func("SELF::" . $function, $config[$target]);
-		if ($function_result) {
-		    continue;
-		} else {
-		    return $target . " does not validate.";
-		}
-	    }
-	}
+        foreach ($functions as $target => $function) {
+            //Check if it is even there in the config
+            if (array_key_exists($target, $config)) {
+                //Perform the validation
+                $function_result = call_user_func("SELF::" . $function, $config[$target]);
+                if ($function_result) {
+                    continue;
+                } else {
+                    return $target . " does not validate.";
+                }
+            }
+        }
 
-	return true;
+        return true;
     }
 
 //checkConfig
@@ -519,48 +519,48 @@ class SEPASDD {
      * @return TRUE if valid, error string if invalid.
      */
     private function validatePayment($payment) {
-	$required = array("name",
-	    "IBAN",
-	    "amount",
-	    "type",
-	    "collection_date",
-	    "mandate_id",
-	    "mandate_date",
-	    "description");
-	$functions = array("IBAN" => "validateIBAN",
-	    "BIC" => "validateBIC",
-	    "amount" => "validateAmount",
-	    "collection_date" => "validateDate",
-	    "mandate_date" => "validateMandateDate",
-	    "type" => "validateDDType",
-	    "end_to_end_id" => "validateEndToEndId");
+        $required = array("name",
+            "IBAN",
+            "amount",
+            "type",
+            "collection_date",
+            "mandate_id",
+            "mandate_date",
+            "description");
+        $functions = array("IBAN" => "validateIBAN",
+            "BIC" => "validateBIC",
+            "amount" => "validateAmount",
+            "collection_date" => "validateDate",
+            "mandate_date" => "validateMandateDate",
+            "type" => "validateDDType",
+            "end_to_end_id" => "validateEndToEndId");
 
-	foreach ($required as $requirement) {
-	    //Check if the config has the required parameter
-	    if (array_key_exists($requirement, $payment)) {
-		//It exists, check if not empty
-		if (empty($payment[$requirement])) {
-		    return $requirement . " is empty.";
-		}
-	    } else {
-		return $requirement . " does not exist.";
-	    }
-	}
+        foreach ($required as $requirement) {
+            //Check if the config has the required parameter
+            if (array_key_exists($requirement, $payment)) {
+                //It exists, check if not empty
+                if (empty($payment[$requirement])) {
+                    return $requirement . " is empty.";
+                }
+            } else {
+                return $requirement . " does not exist.";
+            }
+        }
 
-	foreach ($functions as $target => $function) {
-	    //Check if it is even there in the config
-	    if (array_key_exists($target, $payment)) {
-		//Perform the RegEx
-		$function_result = call_user_func("SELF::" . $function, $payment[$target]);
-		if ($function_result === true) {
-		    continue;
-		} else {
-		    return $target . " does not validate: " . $function_result;
-		}
-	    }
-	}
+        foreach ($functions as $target => $function) {
+            //Check if it is even there in the config
+            if (array_key_exists($target, $payment)) {
+                //Perform the RegEx
+                $function_result = call_user_func("SELF::" . $function, $payment[$target]);
+                if ($function_result === true) {
+                    continue;
+                } else {
+                    return $target . " does not validate: " . $function_result;
+                }
+            }
+        }
 
-	return true;
+        return true;
     }
 
 //validatePayment
@@ -571,7 +571,7 @@ class SEPASDD {
      * @return BOOLEAN TRUE if valid, FALSE if invalid.
      */
     public static function validateBatch($batch) {
-	return is_bool($batch);
+        return is_bool($batch);
     }
 
 //validateBatch
@@ -582,51 +582,51 @@ class SEPASDD {
      * @return BOOLEAN TRUE if valid, FALSE if invalid.
      */
     public static function validateIBAN($IBAN) {
-	$result = preg_match("/[A-Z]{2,2}[0-9]{2,2}[a-zA-Z0-9]{1,30}/", $IBAN);
-	if ($result == 0 || $result === False) {
-	    throw new SEPAInvalidIBAN();
-	}
+        $result = preg_match("/[A-Z]{2,2}[0-9]{2,2}[a-zA-Z0-9]{1,30}/", $IBAN);
+        if ($result == 0 || $result === False) {
+            throw new SEPAInvalidIBAN();
+        }
 
-	$IBAN = strtoupper($IBAN);
-	$IBAN = substr($IBAN, 4) . substr($IBAN, 0, 4); // Place CC and Check at back
+        $IBAN = strtoupper($IBAN);
+        $IBAN = substr($IBAN, 4) . substr($IBAN, 0, 4); // Place CC and Check at back
 
-	$IBANArray = str_split($IBAN);
-	$IBANDecimal = "";
-	foreach ($IBANArray as $char) {
-	    if (is_numeric($char)) {
-		$IBANDecimal .= $char;
-	    } else {
-		$IBANDecimal .= ord($char) - ord("A") + 10;
-	    }
-	}
+        $IBANArray = str_split($IBAN);
+        $IBANDecimal = "";
+        foreach ($IBANArray as $char) {
+            if (is_numeric($char)) {
+                $IBANDecimal .= $char;
+            } else {
+                $IBANDecimal .= ord($char) - ord("A") + 10;
+            }
+        }
 
-	//To avoid the big number issues, we split the modulus into iterations.
-	//First chunk is 9, the rest are modulus (max 2) + 7, last one is whatever is left (2 + < 7).
-	$startchunk = substr($IBANDecimal, 0, 9);
-	$startmod = intval($startchunk) % 97;
+        //To avoid the big number issues, we split the modulus into iterations.
+        //First chunk is 9, the rest are modulus (max 2) + 7, last one is whatever is left (2 + < 7).
+        $startchunk = substr($IBANDecimal, 0, 9);
+        $startmod = intval($startchunk) % 97;
 
-	$IBANDecimal = substr($IBANDecimal, 9);
-	$chunks = ceil(strlen($IBANDecimal) / 7);
-	$remainder = strlen($IBANDecimal) % 7;
+        $IBANDecimal = substr($IBANDecimal, 9);
+        $chunks = ceil(strlen($IBANDecimal) / 7);
+        $remainder = strlen($IBANDecimal) % 7;
 
-	for ($i = 0; $i <= $chunks; $i++) {
-	    $IBANDecimal = $startmod . $IBANDecimal;
-	    $startchunk = substr($IBANDecimal, 0, 8);
-	    $startmod = intval($startchunk) % 97;
-	    $IBANDecimal = substr($IBANDecimal, 8);
-	}
+        for ($i = 0; $i <= $chunks; $i++) {
+            $IBANDecimal = $startmod . $IBANDecimal;
+            $startchunk = substr($IBANDecimal, 0, 8);
+            $startmod = intval($startchunk) % 97;
+            $IBANDecimal = substr($IBANDecimal, 8);
+        }
 
-	//Check if we have a chunk with less than 7 numbers.
-	if ($remainder != 0) {
-	    $endmod = intval($startmod . $IBANDecimal) % 97;
-	} else {
-	    $endmod = $startmod;
-	}
-	if ($endmod == 1) {
-	    return True;
-	} else {
-	    throw new SEPAInvalidIBAN();
-	}
+        //Check if we have a chunk with less than 7 numbers.
+        if ($remainder != 0) {
+            $endmod = intval($startmod . $IBANDecimal) % 97;
+        } else {
+            $endmod = $startmod;
+        }
+        if ($endmod == 1) {
+            return True;
+        } else {
+            throw new SEPAInvalidIBAN();
+        }
     }
 
 //validateIBAN
@@ -637,15 +637,15 @@ class SEPASDD {
      * @return BOOLEAN TRUE if valid, error string if invalid.
      */
     public static function validateEndToEndId($EndToEndId) {
-	$ascii = mb_check_encoding($EndToEndId, 'ASCII');
-	$len = strlen($EndToEndId);
-	if ($ascii && $len < 36) {
-	    return True;
-	} elseif (!$ascii) {
-	    return $EndToEndId . " is not ASCII";
-	} else {
-	    return $EndToEndId . " is longer than 35 characters";
-	}
+        $ascii = mb_check_encoding($EndToEndId, 'ASCII');
+        $len = strlen($EndToEndId);
+        if ($ascii && $len < 36) {
+            return True;
+        } elseif (!$ascii) {
+            return $EndToEndId . " is not ASCII";
+        } else {
+            return $EndToEndId . " is longer than 35 characters";
+        }
     }
 
 //validateEndToEndId
@@ -656,12 +656,12 @@ class SEPASDD {
      * @return TRUE if valid, FALSE if invalid.
      */
     public static function validateBIC($BIC) {
-	$result = preg_match("([a-zA-Z]{4}[a-zA-Z]{2}[a-zA-Z0-9]{2}([a-zA-Z0-9]{3})?)", $BIC);
-	if ($result > 0 && $result !== false) {
-	    return true;
-	} else {
-	    throw new SEPAInvalidBIC();
-	}
+        $result = preg_match("([a-zA-Z]{4}[a-zA-Z]{2}[a-zA-Z0-9]{2}([a-zA-Z0-9]{3})?)", $BIC);
+        if ($result > 0 && $result !== false) {
+            return true;
+        } else {
+            throw new SEPAInvalidBIC();
+        }
     }
 
 //validateBIC
@@ -672,17 +672,17 @@ class SEPASDD {
      * @return True if valid, error string if invalid.
      */
     public static function validateDate($date) {
-	$result = \DateTime::createFromFormat("Y-m-d", $date);
+        $result = \DateTime::createFromFormat("Y-m-d", $date);
 
-	if ($result === false) {
-	    throw new SEPAInvalidDate($date . " is not a valid ISO Date");
-	}
+        if ($result === false) {
+            throw new SEPAInvalidDate($date . " is not a valid ISO Date");
+        }
 
-	if ($result->format("Y-m-d") != $date) {
-	    throw new SEPAInvalidDate($date . " is not a valid ISO Date");
-	}
+        if ($result->format("Y-m-d") != $date) {
+            throw new SEPAInvalidDate($date . " is not a valid ISO Date");
+        }
 
-	return true;
+        return true;
     }
 
 //checkDate
@@ -693,21 +693,21 @@ class SEPASDD {
      * @return True if valid, error string if invalid.
      */
     public static function validateMandateDate($date) {
-	self::validateDate($date);
-	$result = \DateTime::createFromFormat("Y-m-d", $date);
+        self::validateDate($date);
+        $result = \DateTime::createFromFormat("Y-m-d", $date);
 
-	if ($result === false) {
-	    return $date . " is not a valid ISO Date";
-	}
+        if ($result === false) {
+            return $date . " is not a valid ISO Date";
+        }
 
-	$timeStamp = $result->getTimestamp();
-	$beginOfToday = strtotime(date("Y-m-d") . " 00:00");
+        $timeStamp = $result->getTimestamp();
+        $beginOfToday = strtotime(date("Y-m-d") . " 00:00");
 
-	if ($timeStamp > $beginOfToday) {
-	    return "mandate_date " . $date . " must be at least 1 day earlier then current day " . date("Y-m-d");
-	}
+        if ($timeStamp > $beginOfToday) {
+            return "mandate_date " . $date . " must be at least 1 day earlier then current day " . date("Y-m-d");
+        }
 
-	return true;
+        return true;
     }
 
 //checkMandateDate
@@ -718,14 +718,14 @@ class SEPASDD {
      * @return True if valid, error string if invalid.
      */
     public static function validateDDType($type) {
-	$types = array("FRST",
-	    "RCUR",
-	    "FNAL",
-	    "OOFF");
-	if (!in_array($type, $types)) {
-	    throw new SEPAInvalidFormat($type . " is not a valid Sepa Direct Debit Transaction Type.");
-	}
-	return true;
+        $types = array("FRST",
+            "RCUR",
+            "FNAL",
+            "OOFF");
+        if (!in_array($type, $types)) {
+            throw new SEPAInvalidFormat($type . " is not a valid Sepa Direct Debit Transaction Type.");
+        }
+        return true;
     }
 
 //validateDDType
@@ -736,7 +736,7 @@ class SEPASDD {
      * @return TRUE if valid, FALSE if invalid.
      */
     public static function validateAmount($amount) {
-	return ctype_digit(strval($amount));
+        return ctype_digit(strval($amount));
     }
 
 //validateAmount
@@ -748,16 +748,16 @@ class SEPASDD {
      * @return The decimal
      */
     private function intToDecimal($int) {
-	$int = str_replace(".", "", $int); //For cases where the int is already an decimal.
-	$before = substr($int, 0, -2);
-	$after = substr($int, -2);
-	if (empty($before)) {
-	    $before = 0;
-	}
-	if (strlen($after) == 1) {
-	    $after = "0" . $after;
-	}
-	return $before . "." . $after;
+        $int = str_replace(".", "", $int); //For cases where the int is already an decimal.
+        $before = substr($int, 0, -2);
+        $after = substr($int, -2);
+        if (empty($before)) {
+            $before = 0;
+        }
+        if (strlen($after) == 1) {
+            $after = "0" . $after;
+        }
+        return $before . "." . $after;
     }
 
 //intToDecimal
@@ -769,7 +769,7 @@ class SEPASDD {
      * @return The amount as integer string
      */
     private function decimalToInt($decimal) {
-	return str_replace(".", "", $decimal);
+        return str_replace(".", "", $decimal);
     }
 
 //decimalToInt
@@ -780,11 +780,11 @@ class SEPASDD {
      * @return The decimal sum of the array
      */
     private function calcTotalAmount($amounts) {
-	$sum = 0;
-    foreach ($amounts as $amount) {
-        $sum = bcadd($sum, $amount,2);
-    }
-	return $sum;
+        $sum = 0;
+        foreach ($amounts as $amount) {
+            $sum = bcadd($sum, $amount, 2);
+        }
+        return $sum;
     }
 
 //calcTotalAmount
@@ -794,11 +794,11 @@ class SEPASDD {
      * @return the Message Id.
      */
     private function makeMsgId() {
-	$random = mt_rand();
-	$random = md5($random);
-	$random = substr($random, 0, 12);
-	$timestamp = date("dmYsi");
-	return $timestamp . "-" . $random;
+        $random = mt_rand();
+        $random = md5($random);
+        $random = substr($random, 0, 12);
+        $timestamp = date("dmYsi");
+        return $timestamp . "-" . $random;
     }
 
 //makeMsgId
@@ -808,15 +808,15 @@ class SEPASDD {
      * @return the Id.
      */
     private function makeId() {
-	$random = mt_rand();
-	$random = md5($random);
-	$random = substr($random, 0, 12);
-	$name = $this->config['name'];
-	$length = strlen($name);
-	if ($length > 22) {
-	    $name = substr($name, 0, 22);
-	}
-	return $name . "-" . $random;
+        $random = mt_rand();
+        $random = md5($random);
+        $random = substr($random, 0, 12);
+        $name = $this->config['name'];
+        $length = strlen($name);
+        if ($length > 22) {
+            $name = substr($name, 0, 22);
+        }
+        return $name . "-" . $random;
     }
 
 //makeId
@@ -827,11 +827,11 @@ class SEPASDD {
      * @throws Exception when the node does noet exist or there are more then one.
      */
     private function getCstmrDrctDbtInitnNode() {
-	$CstmrDrctDbtInitnNodeList = $this->xml->getElementsByTagName("CstmrDrctDbtInitn");
-	if ($CstmrDrctDbtInitnNodeList->length != 1) {
-	    throw new \Exception("Error retrieving node from document: No or Multiple CstmrDrctDbtInitn");
-	}
-	return $CstmrDrctDbtInitnNodeList->item(0);
+        $CstmrDrctDbtInitnNodeList = $this->xml->getElementsByTagName("CstmrDrctDbtInitn");
+        if ($CstmrDrctDbtInitnNodeList->length != 1) {
+            throw new \Exception("Error retrieving node from document: No or Multiple CstmrDrctDbtInitn");
+        }
+        return $CstmrDrctDbtInitnNodeList->item(0);
     }
 
 //getCstmrDrctDbtInitnNode
@@ -843,199 +843,199 @@ class SEPASDD {
      */
     private function getBatch($type, $date) {
 
-	//If the batch for this type and date already exists, return it.
-	if ($this->validateDDType($type) &&
-		$this->validateDate($date) &&
-		array_key_exists($type . "::" . $date, $this->batchArray)
-	) {
-	    return $this->batchArray[$type . "::" . $date];
-	}
+        //If the batch for this type and date already exists, return it.
+        if ($this->validateDDType($type) &&
+            $this->validateDate($date) &&
+            array_key_exists($type . "::" . $date, $this->batchArray)
+        ) {
+            return $this->batchArray[$type . "::" . $date];
+        }
 
-	//Create the PmtInf element and its subelements
-	$PmtInfNode = $this->xml->createElement("PmtInf");
-	$PmtInfIdNode = $this->xml->createElement("PmtInfId");
-	$PmtMtdNode = $this->xml->createElement("PmtMtd");
-	$BtchBookgNode = $this->xml->createElement("BtchBookg");
-	$NbOfTxsNode = $this->xml->createElement("NbOfTxs");
-	$CtrlSumNode = $this->xml->createElement("CtrlSum");
-	$PmtTpInfNode = $this->xml->createElement("PmtTpInf");
-	$SvcLvlNode = $this->xml->createElement("SvcLvl");
-	$Cd_SvcLvl_Node = $this->xml->createElement("Cd");
-	$LclInstrmNode = $this->xml->createElement("LclInstrm");
-	$Cd_LclInstrm_Node = $this->xml->createElement("Cd");
-	$SeqTpNode = $this->xml->createElement("SeqTp");
-	$ReqdColltnDtNode = $this->xml->createElement("ReqdColltnDt");
-	$CdtrNode = $this->xml->createElement("Cdtr");
-	$Nm_Cdtr_Node = $this->xml->createElement("Nm");
-	$CdtrAcctNode = $this->xml->createElement("CdtrAcct");
-	$Id_CdtrAcct_Node = $this->xml->createElement("Id");
-	$IBAN_CdtrAcct_Node = $this->xml->createElement("IBAN");
-	$CdtrAgtNode = $this->xml->createElement("CdtrAgt");
-	$FinInstnId_CdtrAgt_Node = $this->xml->createElement("FinInstnId");
-	if (isset($this->config['BIC'])) {
+        //Create the PmtInf element and its subelements
+        $PmtInfNode = $this->xml->createElement("PmtInf");
+        $PmtInfIdNode = $this->xml->createElement("PmtInfId");
+        $PmtMtdNode = $this->xml->createElement("PmtMtd");
+        $BtchBookgNode = $this->xml->createElement("BtchBookg");
+        $NbOfTxsNode = $this->xml->createElement("NbOfTxs");
+        $CtrlSumNode = $this->xml->createElement("CtrlSum");
+        $PmtTpInfNode = $this->xml->createElement("PmtTpInf");
+        $SvcLvlNode = $this->xml->createElement("SvcLvl");
+        $Cd_SvcLvl_Node = $this->xml->createElement("Cd");
+        $LclInstrmNode = $this->xml->createElement("LclInstrm");
+        $Cd_LclInstrm_Node = $this->xml->createElement("Cd");
+        $SeqTpNode = $this->xml->createElement("SeqTp");
+        $ReqdColltnDtNode = $this->xml->createElement("ReqdColltnDt");
+        $CdtrNode = $this->xml->createElement("Cdtr");
+        $Nm_Cdtr_Node = $this->xml->createElement("Nm");
+        $CdtrAcctNode = $this->xml->createElement("CdtrAcct");
+        $Id_CdtrAcct_Node = $this->xml->createElement("Id");
+        $IBAN_CdtrAcct_Node = $this->xml->createElement("IBAN");
+        $CdtrAgtNode = $this->xml->createElement("CdtrAgt");
+        $FinInstnId_CdtrAgt_Node = $this->xml->createElement("FinInstnId");
+        if (isset($this->config['BIC'])) {
 
-	    if (isset($this->config['version']) && $this->config['version'] == "3") {
-		$BIC_CdtrAgt_Node = $this->xml->createElement("BICFI");
-	    } else {
-		$BIC_CdtrAgt_Node = $this->xml->createElement("BIC");
-	    }
-	} else {
-	    $Othr_CdtrAgt_Node = $this->xml->createElement("Othr");
-	    $Id_Othr_CdtrAgt_Node = $this->xml->createElement("Id");
-	}
-	$ChrgBrNode = $this->xml->createElement("ChrgBr");
-	$CdtrSchmeIdNode = $this->xml->createElement("CdtrSchmeId");
-	$Nm_CdtrSchmeId_Node = $this->xml->createElement("Nm");
-	$Id_CdtrSchmeId_Node = $this->xml->createElement("Id");
-	$PrvtIdNode = $this->xml->createElement("PrvtId");
-	$OthrNode = $this->xml->createElement("Othr");
-	$Id_Othr_Node = $this->xml->createElement("Id");
-	$SchmeNmNode = $this->xml->createElement("SchmeNm");
-	$PrtryNode = $this->xml->createElement("Prtry");
+            if (isset($this->config['version']) && $this->config['version'] == "3") {
+                $BIC_CdtrAgt_Node = $this->xml->createElement("BICFI");
+            } else {
+                $BIC_CdtrAgt_Node = $this->xml->createElement("BIC");
+            }
+        } else {
+            $Othr_CdtrAgt_Node = $this->xml->createElement("Othr");
+            $Id_Othr_CdtrAgt_Node = $this->xml->createElement("Id");
+        }
+        $ChrgBrNode = $this->xml->createElement("ChrgBr");
+        $CdtrSchmeIdNode = $this->xml->createElement("CdtrSchmeId");
+        $Nm_CdtrSchmeId_Node = $this->xml->createElement("Nm");
+        $Id_CdtrSchmeId_Node = $this->xml->createElement("Id");
+        $PrvtIdNode = $this->xml->createElement("PrvtId");
+        $OthrNode = $this->xml->createElement("Othr");
+        $Id_Othr_Node = $this->xml->createElement("Id");
+        $SchmeNmNode = $this->xml->createElement("SchmeNm");
+        $PrtryNode = $this->xml->createElement("Prtry");
 
-	//Fill in the blanks
-	$PmtInfIdNode->nodeValue = $this->makeId();
-	$PmtMtdNode->nodeValue = "DD"; //Direct Debit
-	$BtchBookgNode->nodeValue = "true";
-	$CtrlSumNode->nodeValue = "0";
-	$Cd_SvcLvl_Node->nodeValue = "SEPA";
-	$Cd_LclInstrm_Node->nodeValue = "CORE";
-	$SeqTpNode->nodeValue = $type; //Define a check for: FRST RCUR OOFF FNAL
-	$ReqdColltnDtNode->nodeValue = $date;
+        //Fill in the blanks
+        $PmtInfIdNode->nodeValue = $this->makeId();
+        $PmtMtdNode->nodeValue = "DD"; //Direct Debit
+        $BtchBookgNode->nodeValue = "true";
+        $CtrlSumNode->nodeValue = "0";
+        $Cd_SvcLvl_Node->nodeValue = "SEPA";
+        $Cd_LclInstrm_Node->nodeValue = "CORE";
+        $SeqTpNode->nodeValue = $type; //Define a check for: FRST RCUR OOFF FNAL
+        $ReqdColltnDtNode->nodeValue = $date;
 
-	if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-	    $Nm_Cdtr_Node->nodeValue = htmlentities($this->config['name'], ENT_XML1, 'UTF-8');
-	} else {
-	    $Nm_Cdtr_Node->nodeValue = htmlentities($this->config['name'], ENT_QUOTES, 'UTF-8');
-	}
+        if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+            $Nm_Cdtr_Node->nodeValue = htmlentities($this->config['name'], ENT_XML1, 'UTF-8');
+        } else {
+            $Nm_Cdtr_Node->nodeValue = htmlentities($this->config['name'], ENT_QUOTES, 'UTF-8');
+        }
 
-	$IBAN_CdtrAcct_Node->nodeValue = $this->config['IBAN'];
-	if (isset($this->config['BIC'])) {
-	    $BIC_CdtrAgt_Node->nodeValue = $this->config['BIC'];
-	} else {
-	    $Id_Othr_CdtrAgt_Node->nodeValue = "NOTPROVIDED";
-	}
-	$ChrgBrNode->nodeValue = "SLEV";
+        $IBAN_CdtrAcct_Node->nodeValue = $this->config['IBAN'];
+        if (isset($this->config['BIC'])) {
+            $BIC_CdtrAgt_Node->nodeValue = $this->config['BIC'];
+        } else {
+            $Id_Othr_CdtrAgt_Node->nodeValue = "NOTPROVIDED";
+        }
+        $ChrgBrNode->nodeValue = "SLEV";
 
-	if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-	    $Nm_CdtrSchmeId_Node->nodeValue = htmlentities($this->config['name'], ENT_XML1, 'UTF-8');
-	} else {
-	    $Nm_CdtrSchmeId_Node->nodeValue = htmlentities($this->config['name'], ENT_QUOTES, 'UTF-8');
-	}
+        if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+            $Nm_CdtrSchmeId_Node->nodeValue = htmlentities($this->config['name'], ENT_XML1, 'UTF-8');
+        } else {
+            $Nm_CdtrSchmeId_Node->nodeValue = htmlentities($this->config['name'], ENT_QUOTES, 'UTF-8');
+        }
 
-	$Id_Othr_Node->nodeValue = $this->config['creditor_id'];
-	$PrtryNode->nodeValue = "SEPA";
+        $Id_Othr_Node->nodeValue = $this->config['creditor_id'];
+        $PrtryNode->nodeValue = "SEPA";
 
-	//Fold the batch information
-	$PmtInfNode->appendChild($PmtInfIdNode);
-	$PmtInfNode->appendChild($PmtMtdNode);
-	$PmtInfNode->appendChild($BtchBookgNode);
-	$PmtInfNode->appendChild($NbOfTxsNode);
-	$PmtInfNode->appendChild($CtrlSumNode);
+        //Fold the batch information
+        $PmtInfNode->appendChild($PmtInfIdNode);
+        $PmtInfNode->appendChild($PmtMtdNode);
+        $PmtInfNode->appendChild($BtchBookgNode);
+        $PmtInfNode->appendChild($NbOfTxsNode);
+        $PmtInfNode->appendChild($CtrlSumNode);
 
-	$SvcLvlNode->appendChild($Cd_SvcLvl_Node);
-	$PmtTpInfNode->appendChild($SvcLvlNode);
-	$LclInstrmNode->appendChild($Cd_LclInstrm_Node);
-	$PmtTpInfNode->appendChild($LclInstrmNode);
-	$PmtTpInfNode->appendChild($SeqTpNode);
-	$PmtInfNode->appendChild($PmtTpInfNode);
-	$PmtInfNode->appendChild($ReqdColltnDtNode);
+        $SvcLvlNode->appendChild($Cd_SvcLvl_Node);
+        $PmtTpInfNode->appendChild($SvcLvlNode);
+        $LclInstrmNode->appendChild($Cd_LclInstrm_Node);
+        $PmtTpInfNode->appendChild($LclInstrmNode);
+        $PmtTpInfNode->appendChild($SeqTpNode);
+        $PmtInfNode->appendChild($PmtTpInfNode);
+        $PmtInfNode->appendChild($ReqdColltnDtNode);
 
-	$CdtrNode->appendChild($Nm_Cdtr_Node);
-	$PmtInfNode->appendChild($CdtrNode);
+        $CdtrNode->appendChild($Nm_Cdtr_Node);
+        $PmtInfNode->appendChild($CdtrNode);
 
-	$Id_CdtrAcct_Node->appendChild($IBAN_CdtrAcct_Node);
-	$CdtrAcctNode->appendChild($Id_CdtrAcct_Node);
-	$PmtInfNode->appendChild($CdtrAcctNode);
+        $Id_CdtrAcct_Node->appendChild($IBAN_CdtrAcct_Node);
+        $CdtrAcctNode->appendChild($Id_CdtrAcct_Node);
+        $PmtInfNode->appendChild($CdtrAcctNode);
 
-	if (isset($this->config['BIC'])) {
-	    $FinInstnId_CdtrAgt_Node->appendChild($BIC_CdtrAgt_Node);
-	} else {
-	    $Othr_CdtrAgt_Node->appendChild($Id_Othr_CdtrAgt_Node);
-	    $FinInstnId_CdtrAgt_Node->appendChild($Othr_CdtrAgt_Node);
-	}
-	$CdtrAgtNode->appendChild($FinInstnId_CdtrAgt_Node);
-	$PmtInfNode->appendChild($CdtrAgtNode);
+        if (isset($this->config['BIC'])) {
+            $FinInstnId_CdtrAgt_Node->appendChild($BIC_CdtrAgt_Node);
+        } else {
+            $Othr_CdtrAgt_Node->appendChild($Id_Othr_CdtrAgt_Node);
+            $FinInstnId_CdtrAgt_Node->appendChild($Othr_CdtrAgt_Node);
+        }
+        $CdtrAgtNode->appendChild($FinInstnId_CdtrAgt_Node);
+        $PmtInfNode->appendChild($CdtrAgtNode);
 
-	$PmtInfNode->appendChild($ChrgBrNode);
+        $PmtInfNode->appendChild($ChrgBrNode);
 
-	$CdtrSchmeIdNode->appendChild($Nm_CdtrSchmeId_Node);
-	$OthrNode->appendChild($Id_Othr_Node);
-	$SchmeNmNode->appendChild($PrtryNode);
-	$OthrNode->appendChild($SchmeNmNode);
-	$PrvtIdNode->appendChild($OthrNode);
-	$Id_CdtrSchmeId_Node->appendChild($PrvtIdNode);
-	$CdtrSchmeIdNode->appendChild($Id_CdtrSchmeId_Node);
-	$PmtInfNode->appendChild($CdtrSchmeIdNode);
+        $CdtrSchmeIdNode->appendChild($Nm_CdtrSchmeId_Node);
+        $OthrNode->appendChild($Id_Othr_Node);
+        $SchmeNmNode->appendChild($PrtryNode);
+        $OthrNode->appendChild($SchmeNmNode);
+        $PrvtIdNode->appendChild($OthrNode);
+        $Id_CdtrSchmeId_Node->appendChild($PrvtIdNode);
+        $CdtrSchmeIdNode->appendChild($Id_CdtrSchmeId_Node);
+        $PmtInfNode->appendChild($CdtrSchmeIdNode);
 
-	//Add it to the batchArray.       
-	$this->batchArray[$type . "::" . $date]['node'] = $PmtInfNode;
-	$this->batchArray[$type . "::" . $date]['ctrlSum'] = $CtrlSumNode;
-	$this->batchArray[$type . "::" . $date]['nbOfTxs'] = $NbOfTxsNode;
-	$this->batchArray[$type . "::" . $date]['pmtInfId'] = $PmtInfIdNode;
+        //Add it to the batchArray.       
+        $this->batchArray[$type . "::" . $date]['node'] = $PmtInfNode;
+        $this->batchArray[$type . "::" . $date]['ctrlSum'] = $CtrlSumNode;
+        $this->batchArray[$type . "::" . $date]['nbOfTxs'] = $NbOfTxsNode;
+        $this->batchArray[$type . "::" . $date]['pmtInfId'] = $PmtInfIdNode;
 
-	//Return the batch array for this type and date.
-	return $this->batchArray[$type . "::" . $date];
+        //Return the batch array for this type and date.
+        return $this->batchArray[$type . "::" . $date];
     }
 
 //getBatch
 
     public function isEmpty() {
-	return empty($this->batchArray);
+        return empty($this->batchArray);
     }
 
     public function getDirectDebitInfo() {
-	$info = array();
-	$info['MessageId'] = $this->xml->getElementsByTagName("MsgId")->item(0)->nodeValue;
-	$info['TotalTransactions'] = 0;
-	$info['TotalAmount'] = 0;
-	$info['FirstCollectionDate'] = NULL;
-	if ($this->config['batch']) {
-	    $batches = array();
-	    foreach ($this->batchArray as $key => $batch) {
-		$batchInfo = array();
-		$batchKey = explode("::", $key);
-		$date = $batchKey[1];
-		$batchInfo['CollectionDate'] = $date;
+        $info = array();
+        $info['MessageId'] = $this->xml->getElementsByTagName("MsgId")->item(0)->nodeValue;
+        $info['TotalTransactions'] = 0;
+        $info['TotalAmount'] = 0;
+        $info['FirstCollectionDate'] = NULL;
+        if ($this->config['batch']) {
+            $batches = array();
+            foreach ($this->batchArray as $key => $batch) {
+                $batchInfo = array();
+                $batchKey = explode("::", $key);
+                $date = $batchKey[1];
+                $batchInfo['CollectionDate'] = $date;
 
-		$dateObject = \DateTime::createFromFormat("Y-m-d", $date);
-		if ($info['FirstCollectionDate'] == NULL || $dateObject > $info['FirstCollectionDate']) {
-		    $info['FirstCollectionDate'] = $dateObject;
-		}
+                $dateObject = \DateTime::createFromFormat("Y-m-d", $date);
+                if ($info['FirstCollectionDate'] == NULL || $dateObject > $info['FirstCollectionDate']) {
+                    $info['FirstCollectionDate'] = $dateObject;
+                }
 
-		$batchInfo['Type'] = $batchKey[0];
-		$batchInfo['BatchId'] = $batch['pmtInfId']->nodeValue;
-		$txs = intval($batch['nbOfTxs']->nodeValue);
-		$batchInfo['BatchTransactions'] = $txs;
-		$info['TotalTransactions'] += $txs;
-		$batchInfo['BatchAmount'] = $batch['ctrlSum']->nodeValue;
-		$info['TotalAmount'] = bcadd($info['TotalAmount'], $batch['ctrlSum']->nodeValue, 2);
+                $batchInfo['Type'] = $batchKey[0];
+                $batchInfo['BatchId'] = $batch['pmtInfId']->nodeValue;
+                $txs = intval($batch['nbOfTxs']->nodeValue);
+                $batchInfo['BatchTransactions'] = $txs;
+                $info['TotalTransactions'] += $txs;
+                $batchInfo['BatchAmount'] = $batch['ctrlSum']->nodeValue;
+                $info['TotalAmount'] = bcadd($info['TotalAmount'], $batch['ctrlSum']->nodeValue, 2);
 
 
-		$batches[] = $batchInfo;
-	    }
-	    $info['Batches'] = $batches;
-	} else {
-	    $trxCount = $this->xml->getElementsByTagName("DrctDbtTxInf");
-	    $info['TotalTransactions'] = $trxCount->length;
-	    $trxAmounts = $this->xml->getElementsByTagName("InstdAmt");
-	    $trxAmountArray = array();
-	    foreach ($trxAmounts as $amount) {
-		$trxAmountArray[] = $amount->nodeValue;
-	    }
-	    $info['TotalAmount'] = $this->calcTotalAmount($trxAmountArray);
-	    $dates = $this->xml->getElementsByTagName("ReqdColltnDt");
-	    $datesCount = $dates->length;
-	    for ($idx = 0; $idx < $datesCount; $idx++) {
-		$dateObject = \DateTime::createFromFormat("Y-m-d", $dates->item($idx)->nodeValue);
-		if ($info['FirstCollectionDate'] == NULL || $dateObject > $info['FirstCollectionDate']) {
-		    $info['FirstCollectionDate'] = $dateObject;
-		}
-	    }
-	}
-	$info['TotalAmount'] = $info['TotalAmount'];
-	$info['FirstCollectionDate'] = $info['FirstCollectionDate']->format('Y-m-d');
-	return $info;
+                $batches[] = $batchInfo;
+            }
+            $info['Batches'] = $batches;
+        } else {
+            $trxCount = $this->xml->getElementsByTagName("DrctDbtTxInf");
+            $info['TotalTransactions'] = $trxCount->length;
+            $trxAmounts = $this->xml->getElementsByTagName("InstdAmt");
+            $trxAmountArray = array();
+            foreach ($trxAmounts as $amount) {
+                $trxAmountArray[] = $amount->nodeValue;
+            }
+            $info['TotalAmount'] = $this->calcTotalAmount($trxAmountArray);
+            $dates = $this->xml->getElementsByTagName("ReqdColltnDt");
+            $datesCount = $dates->length;
+            for ($idx = 0; $idx < $datesCount; $idx++) {
+                $dateObject = \DateTime::createFromFormat("Y-m-d", $dates->item($idx)->nodeValue);
+                if ($info['FirstCollectionDate'] == NULL || $dateObject > $info['FirstCollectionDate']) {
+                    $info['FirstCollectionDate'] = $dateObject;
+                }
+            }
+        }
+        $info['TotalAmount'] = $info['TotalAmount'];
+        $info['FirstCollectionDate'] = $info['FirstCollectionDate']->format('Y-m-d');
+        return $info;
     }
 
 }
