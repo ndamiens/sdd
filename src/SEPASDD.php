@@ -764,6 +764,7 @@ class SEPASDD {
     /**
      * Function to convert an amount in decimal to cents (without point).
      * @param $decimal The amount as decimal
+     * @deprecated
      * @return The amount as integer string
      */
     private function decimalToInt($decimal) {
@@ -774,17 +775,14 @@ class SEPASDD {
 
     /**
      * Function to calculate the sum of the amounts, given as decimals in an array.
-     * @param $array The array with decimals
+     * @param $amounts The array with decimals
      * @return The decimal sum of the array
      */
-    private function calcTotalAmount($array) {
-	$ints = array();
+    private function calcTotalAmount($amounts) {
 	$sum = 0;
-	foreach ($array as $decimal) {
-	    $ints[] = $this->decimalToInt($decimal);
-	}
-	$sum = array_sum($ints);
-	$sum = $this->intToDecimal($sum);
+    foreach ($amounts as $amount) {
+        $sum = bcadd($sum, $amount,2);
+    }
 	return $sum;
     }
 
