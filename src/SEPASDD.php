@@ -195,7 +195,7 @@ class SEPASDD {
 	    $PmtMtdNode->nodeValue = "DD"; //Direct Debit
 	    $BtchBookgNode->nodeValue = "false";
 	    $NbOfTxsNode->nodeValue = "1";
-	    $CtrlSumNode->nodeValue = $this->intToDecimal($payment['amount']);
+	    $CtrlSumNode->nodeValue = $payment['amount'];
 	    $Cd_SvcLvl_Node->nodeValue = "SEPA";
 	    $Cd_LclInstrm_Node->nodeValue = "CORE";
 	    $SeqTpNode->nodeValue = $payment['type']; //Define a check for: FRST RCUR OOFF FNAL
@@ -367,8 +367,7 @@ class SEPASDD {
 	    $CstmrDrctDbtInitnNode->appendChild($PmtInfNode);
 	} else {
 	    //Update the batch metrics
-	    $batch['ctrlSum']->nodeValue = str_replace('.', '', $batch['ctrlSum']->nodeValue); #For multiple saves
-	    $batch['ctrlSum']->nodeValue += $payment['amount'];
+	    $batch['ctrlSum']->nodeValue = bcadd($batch['ctrlSum']->nodeValue, $payment['amount'], 2);
 	    $batch['nbOfTxs']->nodeValue++;
 
 	    //Add to the batch
@@ -442,7 +441,6 @@ class SEPASDD {
 	if (!empty($this->batchArray)) {
 	    $CstmrDrctDbtInitnNode = $this->getCstmrDrctDbtInitnNode();
 	    foreach ($this->batchArray as $batch) {
-		$batch['ctrlSum']->nodeValue = $this->intToDecimal($batch['ctrlSum']->nodeValue);
 		$CstmrDrctDbtInitnNode->appendChild($batch['node']);
 	    }
 	}
@@ -1011,9 +1009,8 @@ class SEPASDD {
 		$txs = intval($batch['nbOfTxs']->nodeValue);
 		$batchInfo['BatchTransactions'] = $txs;
 		$info['TotalTransactions'] += $txs;
-		$amount = intval($this->decimalToInt($batch['ctrlSum']->nodeValue));
-		$batchInfo['BatchAmount'] = strval($amount);
-		$info['TotalAmount'] += $amount;
+		$batchInfo['BatchAmount'] = $batch['ctrlSum']->nodeValue;
+		$info['TotalAmount'] = bcadd($info['TotalAmount'], $batch['ctrlSum']->nodeValue, 2);
 
 
 		$batches[] = $batchInfo;
