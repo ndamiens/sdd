@@ -259,7 +259,7 @@ class SEPASDD {
 
 	//Set the payment node information
 	$InstdAmtNode->setAttribute("Ccy", $this->config['currency']);
-	$InstdAmtNode->nodeValue = $this->intToDecimal($payment['amount']);
+	$InstdAmtNode->nodeValue =$payment['amount'];
 
 	$MndtIdNode->nodeValue = $payment['mandate_id'];
 	$DtOfSgntrNode->nodeValue = $payment['mandate_date'];
@@ -744,6 +744,7 @@ class SEPASDD {
     /**
      * Function to convert an amount in cents to a decimal (with point).
      * @param $int The amount as decimal string
+     * @deprecated
      * @return The decimal
      */
     private function intToDecimal($int) {
@@ -1032,7 +1033,7 @@ class SEPASDD {
 		}
 	    }
 	}
-	$info['TotalAmount'] = strval($this->decimalToInt($info['TotalAmount']));
+	$info['TotalAmount'] = $info['TotalAmount'];
 	$info['FirstCollectionDate'] = $info['FirstCollectionDate']->format('Y-m-d');
 	return $info;
     }
